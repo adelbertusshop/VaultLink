@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>VaultLink — Twoje linki. Zaszyfrowane. Tylko Twoje.</title>
     <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
-
+    
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
@@ -20,13 +20,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-
+    
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+    
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
+    
     <style>
         :root {
             --bg: #080a0f;
@@ -42,17 +42,17 @@
             --font-display: 'Syne', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
         }
-
+        
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
+        
         html {
             scroll-behavior: smooth;
         }
-
+        
         body {
             background: var(--bg);
             color: var(--text);
@@ -60,7 +60,7 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-
+        
         /* NOISE TEXTURE */
         body::before {
             content: '';
@@ -71,19 +71,18 @@
             z-index: 0;
             opacity: 0.4;
         }
-
+        
         /* GRID BACKGROUND */
         body::after {
             content: '';
             position: fixed;
             inset: 0;
-            background-image: linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
             background-size: 60px 60px;
             pointer-events: none;
             z-index: 0;
         }
-
+        
         /* NAV */
         nav {
             position: fixed;
@@ -99,7 +98,7 @@
             background: rgba(8,10,15,0.8);
             border-bottom: 1px solid var(--border);
         }
-
+        
         .logo {
             font-family: var(--font-mono);
             font-size: 18px;
@@ -110,7 +109,7 @@
             align-items: center;
             gap: 8px;
         }
-
+        
         .logo-icon {
             width: 28px;
             height: 28px;
@@ -121,7 +120,7 @@
             justify-content: center;
             font-size: 14px;
         }
-
+        
         .nav-badge {
             font-family: var(--font-mono);
             font-size: 11px;
@@ -131,7 +130,7 @@
             border-radius: 20px;
             background: rgba(0,255,170,0.05);
         }
-
+        
         /* HERO */
         .hero {
             position: relative;
@@ -144,7 +143,7 @@
             padding: 120px 24px 80px;
             text-align: center;
         }
-
+        
         .hero-tag {
             font-family: var(--font-mono);
             font-size: 11px;
@@ -161,7 +160,7 @@
             background: rgba(0,255,170,0.04);
             animation: fadeDown 0.8s ease both;
         }
-
+        
         .hero-tag::before {
             content: '';
             width: 6px;
@@ -170,12 +169,12 @@
             background: var(--accent);
             animation: pulse 2s infinite;
         }
-
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(0.7); }
         }
-
+        
         h1 {
             font-size: clamp(42px, 8vw, 96px);
             font-weight: 800;
@@ -184,12 +183,12 @@
             margin-bottom: 28px;
             animation: fadeUp 0.9s ease 0.1s both;
         }
-
+        
         h1 .line1 {
             display: block;
             color: var(--text);
         }
-
+        
         h1 .line2 {
             display: block;
             background: linear-gradient(135deg, var(--accent), var(--accent2));
@@ -197,7 +196,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
+        
         h1 .line3 {
             display: block;
             color: var(--muted);
@@ -206,7 +205,7 @@
             letter-spacing: -1px;
             margin-top: 8px;
         }
-
+        
         .hero-sub {
             font-family: var(--font-mono);
             font-size: clamp(13px, 2vw, 16px);
@@ -216,7 +215,7 @@
             margin-bottom: 52px;
             animation: fadeUp 0.9s ease 0.2s both;
         }
-
+        
         /* WAITLIST FORM */
         .waitlist-box {
             position: relative;
@@ -225,7 +224,7 @@
             max-width: 480px;
             animation: fadeUp 0.9s ease 0.3s both;
         }
-
+        
         .input-row {
             display: flex;
             gap: 0;
@@ -235,11 +234,11 @@
             background: var(--surface);
             transition: box-shadow 0.3s;
         }
-
+        
         .input-row:focus-within {
             box-shadow: 0 0 0 2px rgba(0,255,170,0.2), 0 0 40px rgba(0,255,170,0.08);
         }
-
+        
         .input-row input {
             flex: 1;
             background: transparent;
@@ -250,11 +249,11 @@
             font-size: 14px;
             color: var(--text);
         }
-
+        
         .input-row input::placeholder {
             color: var(--muted);
         }
-
+        
         .btn-join {
             background: var(--accent);
             color: #000;
@@ -268,21 +267,21 @@
             transition: all 0.2s;
             letter-spacing: 0.5px;
         }
-
+        
         .btn-join:hover {
             background: #00ffcc;
             transform: none;
         }
-
+        
         .btn-join:active {
             transform: scale(0.98);
         }
-
+        
         .btn-join:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
-
+        
         .waitlist-meta {
             display: flex;
             align-items: center;
@@ -293,13 +292,13 @@
             font-size: 12px;
             color: var(--muted);
         }
-
+        
         .waitlist-meta span {
             display: flex;
             align-items: center;
             gap: 6px;
         }
-
+        
         .counter-box {
             margin-top: 32px;
             display: inline-flex;
@@ -313,7 +312,7 @@
             font-size: 13px;
             color: var(--muted);
         }
-
+        
         .counter-num {
             font-size: 20px;
             font-weight: 500;
@@ -321,7 +320,7 @@
             min-width: 40px;
             text-align: right;
         }
-
+        
         /* SUCCESS STATE */
         .success-msg {
             display: none;
@@ -334,21 +333,21 @@
             background: rgba(0,255,170,0.04);
             font-family: var(--font-mono);
         }
-
+        
         .success-msg .check {
             font-size: 36px;
         }
-
+        
         .success-msg p {
             color: var(--accent);
             font-size: 15px;
         }
-
+        
         .success-msg small {
             color: var(--muted);
             font-size: 12px;
         }
-
+        
         /* GLOW ORB */
         .orb {
             position: absolute;
@@ -357,7 +356,7 @@
             pointer-events: none;
             z-index: 0;
         }
-
+        
         .orb-1 {
             width: 500px;
             height: 500px;
@@ -366,7 +365,7 @@
             left: 50%;
             transform: translateX(-50%);
         }
-
+        
         .orb-2 {
             width: 300px;
             height: 300px;
@@ -374,7 +373,7 @@
             bottom: 100px;
             right: -50px;
         }
-
+        
         /* FEATURES */
         .features {
             position: relative;
@@ -383,7 +382,7 @@
             max-width: 1100px;
             margin: 0 auto;
         }
-
+        
         .section-label {
             font-family: var(--font-mono);
             font-size: 11px;
@@ -393,7 +392,7 @@
             margin-bottom: 48px;
             text-align: center;
         }
-
+        
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -403,7 +402,7 @@
             border-radius: 16px;
             overflow: hidden;
         }
-
+        
         .feat-card {
             background: var(--surface);
             padding: 36px 32px;
@@ -411,7 +410,7 @@
             position: relative;
             overflow: hidden;
         }
-
+        
         .feat-card::before {
             content: '';
             position: absolute;
@@ -423,35 +422,35 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
-
+        
         .feat-card:hover {
             background: var(--surface2);
         }
-
+        
         .feat-card:hover::before {
             opacity: 1;
         }
-
+        
         .feat-icon {
             font-size: 28px;
             margin-bottom: 20px;
             display: block;
         }
-
+        
         .feat-title {
             font-size: 17px;
             font-weight: 700;
             margin-bottom: 10px;
             color: var(--text);
         }
-
+        
         .feat-desc {
             font-family: var(--font-mono);
             font-size: 13px;
             color: var(--muted);
             line-height: 1.7;
         }
-
+        
         /* PROBLEM SECTION */
         .problem {
             position: relative;
@@ -461,7 +460,7 @@
             margin: 0 auto;
             text-align: center;
         }
-
+        
         .problem h2 {
             font-size: clamp(28px, 5vw, 52px);
             font-weight: 800;
@@ -469,12 +468,12 @@
             line-height: 1.1;
             margin-bottom: 24px;
         }
-
+        
         .problem h2 em {
             font-style: normal;
             color: var(--danger);
         }
-
+        
         .problem p {
             font-family: var(--font-mono);
             font-size: 15px;
@@ -483,7 +482,7 @@
             max-width: 600px;
             margin: 0 auto;
         }
-
+        
         /* DIVIDER */
         .divider {
             width: 100%;
@@ -494,7 +493,7 @@
             position: relative;
             z-index: 1;
         }
-
+        
         /* MOCKUP */
         .mockup-section {
             position: relative;
@@ -502,7 +501,7 @@
             padding: 80px 24px;
             text-align: center;
         }
-
+        
         .mockup-window {
             display: inline-block;
             background: var(--surface);
@@ -513,7 +512,7 @@
             width: 100%;
             box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 60px rgba(0,255,170,0.05);
         }
-
+        
         .mockup-bar {
             background: var(--surface2);
             padding: 14px 20px;
@@ -522,17 +521,17 @@
             gap: 8px;
             border-bottom: 1px solid var(--border);
         }
-
+        
         .dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
         }
-
+        
         .dot-r { background: #ff5f57; }
         .dot-y { background: #febc2e; }
         .dot-g { background: #28c840; }
-
+        
         .mockup-url {
             font-family: var(--font-mono);
             font-size: 12px;
@@ -544,12 +543,12 @@
             flex: 1;
             text-align: left;
         }
-
+        
         .mockup-body {
             padding: 24px;
             text-align: left;
         }
-
+        
         .mock-search {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -560,19 +559,19 @@
             gap: 10px;
             margin-bottom: 20px;
         }
-
+        
         .mock-search span {
             font-family: var(--font-mono);
             font-size: 13px;
             color: var(--muted);
         }
-
+        
         .mock-links {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
+        
         .mock-link {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -583,11 +582,11 @@
             gap: 12px;
             transition: border-color 0.2s;
         }
-
+        
         .mock-link:hover {
             border-color: var(--border-glow);
         }
-
+        
         .mock-favicon {
             width: 28px;
             height: 28px;
@@ -598,24 +597,24 @@
             font-size: 14px;
             flex-shrink: 0;
         }
-
+        
         .mock-link-info {
             flex: 1;
         }
-
+        
         .mock-link-title {
             font-size: 13px;
             font-weight: 600;
             color: var(--text);
             margin-bottom: 2px;
         }
-
+        
         .mock-link-url {
             font-family: var(--font-mono);
             font-size: 11px;
             color: var(--muted);
         }
-
+        
         .mock-tag {
             font-family: var(--font-mono);
             font-size: 10px;
@@ -623,31 +622,31 @@
             border-radius: 4px;
             border: 1px solid;
         }
-
+        
         .tag-green {
             color: var(--accent);
             border-color: rgba(0,255,170,0.3);
             background: rgba(0,255,170,0.05);
         }
-
+        
         .tag-blue {
             color: var(--accent2);
             border-color: rgba(0,170,255,0.3);
             background: rgba(0,170,255,0.05);
         }
-
+        
         .tag-red {
             color: var(--danger);
             border-color: rgba(255,59,92,0.3);
             background: rgba(255,59,92,0.05);
         }
-
+        
         .mock-lock {
             font-size: 12px;
             color: var(--accent);
             margin-left: auto;
         }
-
+        
         /* CTA BOTTOM */
         .cta-bottom {
             position: relative;
@@ -655,21 +654,21 @@
             padding: 80px 24px 120px;
             text-align: center;
         }
-
+        
         .cta-bottom h2 {
             font-size: clamp(28px, 5vw, 56px);
             font-weight: 800;
             letter-spacing: -2px;
             margin-bottom: 16px;
         }
-
+        
         .cta-bottom p {
             font-family: var(--font-mono);
             font-size: 14px;
             color: var(--muted);
             margin-bottom: 40px;
         }
-
+        
         /* FOOTER */
         footer {
             position: relative;
@@ -683,7 +682,7 @@
             font-size: 12px;
             color: var(--muted);
         }
-
+        
         /* TOAST */
         .toast {
             position: fixed;
@@ -701,61 +700,32 @@
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             white-space: nowrap;
         }
-
+        
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
-
+        
         /* ANIMATIONS */
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(24px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
+        
         @keyframes fadeDown {
-            from {
-                opacity: 0;
-                transform: translateY(-16px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-16px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
+        
         /* RESPONSIVE */
         @media (max-width: 600px) {
-            nav {
-                padding: 16px 20px;
-            }
-
-            .input-row {
-                flex-direction: column;
-                border-radius: 12px;
-            }
-
-            .btn-join {
-                border-radius: 0 0 12px 12px;
-                padding: 16px;
-            }
-
-            footer {
-                flex-direction: column;
-                gap: 8px;
-                text-align: center;
-            }
-
-            .mockup-body {
-                padding: 16px;
-            }
+            nav { padding: 16px 20px; }
+            .input-row { flex-direction: column; border-radius: 12px; }
+            .btn-join { border-radius: 0 0 12px 12px; padding: 16px; }
+            footer { flex-direction: column; gap: 8px; text-align: center; }
+            .mockup-body { padding: 16px; }
         }
-
+        
+        /* ERROR */
         .error-msg {
             font-family: var(--font-mono);
             font-size: 12px;
@@ -767,105 +737,89 @@
     </style>
 </head>
 <body>
-
     <!-- NAV -->
     <nav>
         <div class="logo">
-            <div class="logo-icon">V</div>
-            vaultlink
+            <div class="logo-icon">🔒</div>
+            <span>VaultLink</span>
         </div>
-        <div class="nav-badge">encrypted • e2e</div>
+        <div class="nav-badge">Private Beta</div>
     </nav>
-
-    <!-- HERO SECTION -->
+    
+    <!-- HERO -->
     <div class="hero">
-        <div class="hero-tag">zero trust native</div>
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        
+        <div class="hero-tag">Zero access. Zero trust.</div>
         <h1>
             <span class="line1">Twoje linki.</span>
             <span class="line2">Zaszyfrowane.</span>
-            <span class="line3">Tylko Twoje.</span>
+            <span class="line3">Tylko Ty masz klucz.</span>
         </h1>
-        <div class="hero-sub">
-            Prywatna baza linków, notatek i haseł — szyfrowana od A do Z.
-            Żaden serwer nie widzi Twoich danych.
-        </div>
-
-        <div class="waitlist-box" id="waitlistBox">
+        <div class="hero-sub">Bezpieczna baza linków i notatek z szyfrowaniem end-to-end. Ani my, ani nikt inny nie ma dostępu do Twoich danych.</div>
+        
+        <div class="waitlist-box">
             <div class="input-row">
-                <input type="email" id="waitlistEmail" placeholder="hello@privacyfirst.com" autocomplete="email">
+                <input type="email" id="waitlistEmail" placeholder="twój@email.com" />
                 <button class="btn-join" id="joinBtn">Dołącz do listy →</button>
             </div>
-            <div class="error-msg" id="errorMsg">Podaj poprawny adres email</div>
             <div class="waitlist-meta">
-                <span>🔒 Zero logowania</span>
-                <span>⚡ Wczesny dostęp</span>
+                <span>🔐 szyfrowanie lokalnie</span>
+                <span>⚡ zero rejestracji</span>
             </div>
-            <div class="counter-box" id="counterBox">
-                <span>👥 W kolejce</span>
-                <span class="counter-num" id="waitlistCount">0</span>
+            <div class="counter-box">
+                <span>👥 wczesny dostęp:</span>
+                <span class="counter-num" id="counter">0</span>
+                <span>osób gotowych</span>
             </div>
             <div class="success-msg" id="successMsg">
                 <div class="check">✓</div>
                 <p>Jesteś na liście!</p>
-                <small>Otrzymasz magic link, gdy wystartujemy.</small>
+                <small>Otrzymasz link do VaultLink gdy wystartujemy.</small>
             </div>
+            <div class="error-msg" id="errorMsg"></div>
         </div>
-
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
     </div>
-
-    <!-- FEATURES SECTION -->
+    
+    <!-- FEATURES -->
     <div class="features">
-        <div class="section-label">// architektura bezpieczeństwa</div>
+        <div class="section-label">Dlaczego VaultLink?</div>
         <div class="features-grid">
             <div class="feat-card">
-                <span class="feat-icon">🔐</span>
-                <div class="feat-title">Szyfrowanie end‑to‑end</div>
-                <div class="feat-desc">
-                    Twoje dane są szyfrowane lokalnie, zanim trafią do chmury.
-                    Nawet my nie możemy ich odczytać.
-                </div>
+                <span class="feat-icon">🔒</span>
+                <div class="feat-title">Klient-szyfruje</div>
+                <div class="feat-desc">Twoje dane są szyfrowane w przeglądarce zanim trafią na serwer. My widzimy tylko zaszyfrowane klocki.</div>
             </div>
             <div class="feat-card">
                 <span class="feat-icon">🗝️</span>
-                <div class="feat-title">Zero dostępu serwera</div>
-                <div class="feat-desc">
-                    Klucz deszyfrujący istnieje tylko w Twojej przeglądarce.
-                    Żadnych backdoorów.
-                </div>
+                <div class="feat-title">Tylko Twój klucz</div>
+                <div class="feat-desc">Bez klucza — brak dostępu. Nawet my nie go nie mamy. Ty nim zarządzasz lokalnie.</div>
             </div>
             <div class="feat-card">
                 <span class="feat-icon">⚡</span>
-                <div class="feat-title">Szybki jak myśl</div>
-                <div class="feat-desc">
-                    Wyszukiwanie, tagi i notatki — wszystko offline‑first, błyskawicznie.
-                </div>
+                <div class="feat-title">Zero loginów</div>
+                <div class="feat-desc">Brak haseł, baz użytkowników i śledzenia. Twoja tożsamość to tylko klucz szyfrowania.</div>
             </div>
         </div>
     </div>
-
-    <div class="divider"></div>
-
+    
     <!-- PROBLEM SECTION -->
-    <div class="problem">
-        <h2>Linki w chmurze to <em>cyberproszek</em>?</h2>
-        <p>
-            Menadżery haseł i „darmowe” zapisywarki linków mają dostęp do Twoich danych.
-            VaultLink zmienia reguły gry — szyfrujemy wszystko, zanim cokolwiek opuści Twoją przeglądarkę.
-        </p>
-    </div>
-
     <div class="divider"></div>
-
-    <!-- MOCKUP SECTION -->
+    <div class="problem">
+        <h2>Nie chcesz, żeby <em>Google, Notion czy menedżer linków</em> czytał Twoje notatki?</h2>
+        <p>Większość "prywatnych" rozwiązań ma dostęp do Twoich danych. VaultLink nie może — bo nie ma klucza. Szyfrujemy wszystko lokalnie, a serwer służy tylko jako przechowalnia zaszyfrowanego chaosu.</p>
+    </div>
+    <div class="divider"></div>
+    
+    <!-- MOCKUP -->
     <div class="mockup-section">
         <div class="mockup-window">
             <div class="mockup-bar">
                 <div class="dot dot-r"></div>
                 <div class="dot dot-y"></div>
                 <div class="dot dot-g"></div>
-                <div class="mockup-url">vaultlink.app/private/</div>
+                <div class="mockup-url">🔒 vaultlink.app/your-vault</div>
             </div>
             <div class="mockup-body">
                 <div class="mock-search">
@@ -874,252 +828,198 @@
                 </div>
                 <div class="mock-links">
                     <div class="mock-link">
-                        <div class="mock-favicon">📘</div>
+                        <div class="mock-favicon">📄</div>
                         <div class="mock-link-info">
-                            <div class="mock-link-title">Whitepaper VaultLink</div>
-                            <div class="mock-link-url">vaultlink.io/research/...</div>
+                            <div class="mock-link-title">Design system 2025</div>
+                            <div class="mock-link-url">figma.com/file/...</div>
                         </div>
-                        <div class="mock-tag tag-green">zero-knowledge</div>
+                        <div class="mock-tag tag-green">praca</div>
                         <div class="mock-lock">🔒</div>
                     </div>
                     <div class="mock-link">
-                        <div class="mock-favicon">💳</div>
+                        <div class="mock-favicon">🎥</div>
                         <div class="mock-link-info">
-                            <div class="mock-link-title">Karta kredytowa – backup</div>
-                            <div class="mock-link-url">lokalnie zaszyfrowane</div>
+                            <div class="mock-link-title">Jak działa szyfrowanie? (film)</div>
+                            <div class="mock-link-url">youtube.com/watch...</div>
                         </div>
-                        <div class="mock-tag tag-blue">notatka</div>
+                        <div class="mock-tag tag-blue">nauka</div>
                         <div class="mock-lock">🔒</div>
                     </div>
                     <div class="mock-link">
-                        <div class="mock-favicon">🔑</div>
+                        <div class="mock-favicon">💰</div>
                         <div class="mock-link-info">
-                            <div class="mock-link-title">Recovery seed</div>
-                            <div class="mock-link-url">••••••••</div>
+                            <div class="mock-link-title">budżet domowy — klucz główny</div>
+                            <div class="mock-link-url">hasło: ***********</div>
                         </div>
-                        <div class="mock-tag tag-red">wrażliwe</div>
+                        <div class="mock-tag tag-red">prywatne</div>
                         <div class="mock-lock">🔒</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    
     <!-- CTA BOTTOM -->
     <div class="cta-bottom">
-        <h2>Zabezpiecz swoją <br>bibliotekę linków</h2>
-        <p>Dołącz do listy oczekujących — pierwsze 500 osób otrzyma lifetime 50% zniżki.</p>
-        <div style="max-width: 400px; margin: 0 auto;">
-            <div class="input-row" style="margin-bottom: 0;">
-                <input type="email" id="ctaEmail" placeholder="Twój e-mail" autocomplete="email">
-                <button class="btn-join" id="ctaJoinBtn">Chcę dostęp →</button>
+        <h2>Nie czekaj na wyciek.<br/>Przejmij kontrolę już dziś.</h2>
+        <p>Dołącz do listy i uzyskaj wczesny dostęp do VaultLink.</p>
+        <div class="waitlist-box" style="max-width: 400px; margin: 0 auto;">
+            <div class="input-row">
+                <input type="email" id="waitlistEmailBottom" placeholder="twój@email.com" />
+                <button class="btn-join" id="joinBtnBottom">Dołącz →</button>
             </div>
-            <div class="error-msg" id="ctaErrorMsg" style="margin-top: 12px;"></div>
         </div>
     </div>
-
+    
     <!-- FOOTER -->
     <footer>
-        <span>© 2025 VaultLink — zero trust, full privacy.</span>
-        <span>v1.0 • e2e encrypted</span>
+        <span>© 2025 VaultLink — szyfrowanie klient-serwer, zero zaufania</span>
+        <span>🔐 open-source · audytowalne</span>
     </footer>
-
-    <!-- TOAST -->
-    <div id="toast" class="toast">✔️ Dołączyłeś do listy oczekujących</div>
-
+    
+    <div class="toast" id="toastMsg">✓ Dodano do listy oczekujących</div>
+    
     <script>
-        // ======================== KONFIGURACJA ========================
+        // Supabase i EmailJS konfiguracja
         const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         const EMAILJS_SERVICE_ID = 'service_fd1cyfh';
         const EMAILJS_TEMPLATE_ID = 'template_dgg3fbn';
         const EMAILJS_PUBLIC_KEY = 'b8INQFoKRQeN2hO6M';
-        // ================================================================
-
-        // Inicjalizacja Supabase
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+        
         // Inicjalizacja EmailJS
-        emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-
-        // Elementy DOM
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        
+        // Elementy
         const emailInput = document.getElementById('waitlistEmail');
+        const emailInputBottom = document.getElementById('waitlistEmailBottom');
         const joinBtn = document.getElementById('joinBtn');
+        const joinBtnBottom = document.getElementById('joinBtnBottom');
+        const successMsg = document.getElementById('successMsg');
         const errorMsgDiv = document.getElementById('errorMsg');
-        const successMsgDiv = document.getElementById('successMsg');
-        const waitlistBoxDiv = document.querySelector('.waitlist-box .input-row');
-        const waitlistCounterSpan = document.getElementById('waitlistCount');
-        const ctaEmailInput = document.getElementById('ctaEmail');
-        const ctaJoinBtn = document.getElementById('ctaJoinBtn');
-        const ctaErrorMsg = document.getElementById('ctaErrorMsg');
-        const toastEl = document.getElementById('toast');
-
-        // Helper: pokaż toast
-        function showToast(message, isError = false) {
-            const toast = toastEl;
-            toast.textContent = isError ? `⚠️ ${message}` : `✔️ ${message}`;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3500);
-        }
-
-        // Helper: aktualizacja licznika zapisanych użytkowników
-        async function updateWaitlistCounter() {
+        const counterSpan = document.getElementById('counter');
+        const toastMsg = document.getElementById('toastMsg');
+        
+        let isSending = false;
+        
+        // Pobranie liczby zapisów
+        async function fetchCount() {
             try {
-                const { count, error } = await supabaseClient
+                const { count, error } = await supabase
                     .from('waitlist')
                     .select('*', { count: 'exact', head: true });
-
-                if (error) throw error;
-                if (waitlistCounterSpan) {
-                    waitlistCounterSpan.innerText = count || 0;
+                if (!error && count !== null) {
+                    counterSpan.innerText = count;
+                } else {
+                    counterSpan.innerText = '0';
                 }
             } catch (err) {
-                console.warn("Nie udało się pobrać licznika:", err);
-                waitlistCounterSpan.innerText = '?';
+                console.warn('Nie udało się pobrać licznika', err);
+                counterSpan.innerText = '0';
             }
         }
-
-        // Główna funkcja zapisu na waitlistę
-        async function addToWaitlist(email, source = 'main') {
-            // Walidacja emaila
-            if (!email || !/^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/i.test(email)) {
-                if (source === 'main') {
-                    errorMsgDiv.style.display = 'block';
-                } else {
-                    ctaErrorMsg.style.display = 'block';
-                    ctaErrorMsg.innerText = 'Podaj poprawny adres email';
-                    setTimeout(() => {
-                        if (ctaErrorMsg) ctaErrorMsg.style.display = 'none';
-                    }, 3000);
-                }
+        
+        // Funkcja zapisu
+        async function addToWaitlist(email) {
+            if (!email || !email.includes('@')) {
+                errorMsgDiv.style.display = 'block';
+                errorMsgDiv.innerText = 'Podaj poprawny adres email.';
+                setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 3000);
                 return false;
             }
-
-            if (source === 'main') {
-                errorMsgDiv.style.display = 'none';
-            } else {
-                ctaErrorMsg.style.display = 'none';
-            }
-
+            
+            if (isSending) return false;
+            isSending = true;
+            joinBtn.disabled = true;
+            joinBtnBottom.disabled = true;
+            
             try {
-                // Sprawdzenie czy email już istnieje
-                const { data: existing, error: checkError } = await supabaseClient
+                // Sprawdź czy email już istnieje
+                const { data: existing, error: checkError } = await supabase
                     .from('waitlist')
                     .select('email')
                     .eq('email', email)
                     .maybeSingle();
-
-                if (checkError && checkError.code !== 'PGRST116') throw checkError;
-
+                
                 if (existing) {
-                    showToast('Ten email jest już na liście oczekujących!', false);
+                    errorMsgDiv.style.display = 'block';
+                    errorMsgDiv.innerText = 'Ten email jest już na liście!';
+                    setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 3000);
+                    isSending = false;
+                    joinBtn.disabled = false;
+                    joinBtnBottom.disabled = false;
                     return false;
                 }
-
-                // Zapis do Supabase
-                const { error: insertError } = await supabaseClient
+                
+                // Zapisz do Supabase
+                const { error: insertError } = await supabase
                     .from('waitlist')
-                    .insert([{ email: email, created_at: new Date().toISOString() }]);
-
+                    .insert([{ email: email, signed_up_at: new Date().toISOString() }]);
+                
                 if (insertError) throw insertError;
-
-                // Wysłanie powitalnego emaila przez EmailJS
-                await emailjs.send(
-                    EMAILJS_SERVICE_ID,
-                    EMAILJS_TEMPLATE_ID,
-                    {
+                
+                // Wyślij maila powitalnego przez EmailJS
+                try {
+                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                         to_email: email,
-                        from_name: 'VaultLink',
-                        message: 'Dziękujemy za dołączenie do listy oczekujących VaultLink! Otrzymasz powiadomienie gdy wystartujemy.'
-                    }
-                );
-
-                // Sukces UI
-                if (source === 'main') {
-                    if (waitlistBoxDiv) waitlistBoxDiv.style.display = 'none';
-                    if (errorMsgDiv) errorMsgDiv.style.display = 'none';
-                    if (successMsgDiv) successMsgDiv.style.display = 'flex';
-                } else {
-                    showToast('Dołączyłeś do listy oczekujących! Sprawdź skrzynkę.', false);
-                    if (ctaEmailInput) ctaEmailInput.value = '';
+                        to_name: email.split('@')[0],
+                        message: 'Dziękujemy za dołączenie do listy VaultLink! Otrzymasz powiadomienie gdy wystartujemy.'
+                    });
+                } catch (emailError) {
+                    console.warn('EmailJS błąd, ale zapisany w bazie:', emailError);
                 }
-
-                // Odświeżenie licznika
-                updateWaitlistCounter();
+                
+                // Sukces
+                successMsg.style.display = 'flex';
+                if (emailInput) emailInput.value = '';
+                if (emailInputBottom) emailInputBottom.value = '';
+                
+                toastMsg.classList.add('show');
+                setTimeout(() => toastMsg.classList.remove('show'), 4000);
+                
+                await fetchCount();
                 return true;
-
+                
             } catch (err) {
                 console.error('Błąd zapisu:', err);
-                let errorText = 'Wystąpił błąd. Spróbuj ponownie później.';
-
-                if (err.message && err.message.includes('duplicate key')) {
-                    errorText = 'Ten adres email jest już zapisany.';
-                }
-
-                if (source === 'main') {
-                    errorMsgDiv.style.display = 'block';
-                    errorMsgDiv.innerText = errorText;
-                    setTimeout(() => {
-                        if (errorMsgDiv) errorMsgDiv.style.display = 'none';
-                    }, 4000);
-                } else {
-                    ctaErrorMsg.style.display = 'block';
-                    ctaErrorMsg.innerText = errorText;
-                    setTimeout(() => {
-                        if (ctaErrorMsg) ctaErrorMsg.style.display = 'none';
-                    }, 4000);
-                }
-
-                showToast(errorText, true);
+                errorMsgDiv.style.display = 'block';
+                errorMsgDiv.innerText = 'Wystąpił błąd. Spróbuj ponownie za chwilę.';
+                setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 4000);
                 return false;
+            } finally {
+                isSending = false;
+                joinBtn.disabled = false;
+                joinBtnBottom.disabled = false;
             }
         }
-
-        // Event Listeners
-        if (joinBtn) {
-            joinBtn.addEventListener('click', () => {
-                const email = emailInput.value.trim();
-                addToWaitlist(email, 'main');
-            });
-        }
-
-        if (ctaJoinBtn) {
-            ctaJoinBtn.addEventListener('click', () => {
-                const email = ctaEmailInput.value.trim();
-                addToWaitlist(email, 'cta');
-            });
-        }
-
-        // Obsługa Enter
-        emailInput?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const email = emailInput.value.trim();
-                addToWaitlist(email, 'main');
-            }
+        
+        // Event listeners
+        joinBtn.addEventListener('click', () => {
+            const email = emailInput.value.trim();
+            addToWaitlist(email);
         });
-
-        ctaEmailInput?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                const email = ctaEmailInput.value.trim();
-                addToWaitlist(email, 'cta');
-            }
+        
+        joinBtnBottom.addEventListener('click', () => {
+            const email = emailInputBottom.value.trim();
+            addToWaitlist(email);
         });
-
-        // Załaduj licznik przy starcie
-        updateWaitlistCounter();
-
-        // Ukryj początkowy error i success przy ponownym pisaniu
-        if (emailInput) {
-            emailInput.addEventListener('input', () => {
-                if (errorMsgDiv) errorMsgDiv.style.display = 'none';
-                if (successMsgDiv && successMsgDiv.style.display === 'flex') {
-                    if (waitlistBoxDiv) waitlistBoxDiv.style.display = 'flex';
-                    successMsgDiv.style.display = 'none';
-                }
-            });
-        }
+        
+        // Enter key
+        const handleEnter = (e, fieldId) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const email = document.getElementById(fieldId).value.trim();
+                addToWaitlist(email);
+            }
+        };
+        
+        if (emailInput) emailInput.addEventListener('keypress', (e) => handleEnter(e, 'waitlistEmail'));
+        if (emailInputBottom) emailInputBottom.addEventListener('keypress', (e) => handleEnter(e, 'waitlistEmailBottom'));
+        
+        // Załaduj licznik
+        fetchCount();
     </script>
 </body>
-</html>
+</
