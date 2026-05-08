@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>VaultLink — Twoja bezpieczna przyszłość</title>
-    <meta name="description" content="VaultLink - szyfrowana baza linków i notatek. Zero zaufania, pełna prywatność."/>
+    <title>VaultLink — Twoje linki. Zaszyfrowane. Tylko Twoje.</title>
+    <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
@@ -15,16 +15,16 @@
         gtag('config', 'G-524QFQM84F');
     </script>
 
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- EmailJS CDN (wersja 4) -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <style>
         :root {
@@ -883,15 +883,15 @@
         const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
         
-        // Inicjalizacja klienta Supabase
-        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Inicjalizacja klienta Supabase przez window.supabase.createClient
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Konfiguracja EmailJS
         const EMAILJS_SERVICE_ID = 'service_fd1cyfh';
         const EMAILJS_TEMPLATE_ID = 'template_dgg3fbn';
         const EMAILJS_PUBLIC_KEY = 'b8INQFoKRQeN2hO6M';
         
-        // Inicjalizacja EmailJS (TO BYŁO BRAKUJĄCE)
+        // Inicjalizacja EmailJS (przed obsługą formularza)
         emailjs.init(EMAILJS_PUBLIC_KEY);
         
         // Elementy DOM
@@ -923,7 +923,7 @@
             }
         }
         
-        // Główna funkcja zapisu (NAJPIERW SUAPBASE, POTEM EMAILJS)
+        // Główna funkcja zapisu (najpierw Supabase, potem EmailJS)
         async function addToWaitlist(email) {
             if (!email || !email.includes('@')) {
                 errorMsgDiv.style.display = 'block';
@@ -955,7 +955,7 @@
                     return false;
                 }
                 
-                // Krok 2: Zapisz do Supabase (TABELA 'waitlist', KOLUMNA 'email')
+                // Krok 2: Zapisz do Supabase (tabela 'waitlist', kolumna 'email')
                 const { error: insertError } = await supabase
                     .from('waitlist')
                     .insert([{ email: email, signed_up_at: new Date().toISOString() }]);
@@ -1006,13 +1006,7 @@
             }
         }
         
-        // Event Listenery z zapobieganiem domyślnej akcji
-        const handleSubmit = (e, emailValue) => {
-            if (e) e.preventDefault();
-            addToWaitlist(emailValue);
-        };
-        
-        joinBtn.addEventListener('click', (e) => {
+        // Event listenery z e.preventDefault() aby uniknąć odświeżania strony        joinBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
             addToWaitlist(email);
