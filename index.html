@@ -1006,7 +1006,8 @@
             }
         }
         
-        // Event listenery z e.preventDefault() aby uniknąć odświeżania strony        joinBtn.addEventListener('click', (e) => {
+        // Event listenery z e.preventDefault() aby uniknąć odświeżania strony
+        joinBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
             addToWaitlist(email);
