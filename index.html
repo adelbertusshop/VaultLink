@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>VaultLink — Twoje linki. Zaszyfrowane. Tylko Twoje.</title>
-    <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
+    <title>VaultLink — Twoja bezpieczna przyszłość</title>
+    <meta name="description" content="VaultLink - szyfrowana baza linków i notatek. Zero zaufania, pełna prywatność."/>
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
@@ -15,16 +15,16 @@
         gtag('config', 'G-524QFQM84F');
     </script>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-    
-    <!-- Supabase -->
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- EmailJS -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
     
     <style>
         :root {
@@ -879,27 +879,30 @@
     <div class="toast" id="toastMsg">✓ Dodano do listy oczekujących</div>
     
     <script>
-        // Supabase i EmailJS konfiguracja
+        // Konfiguracja Supabase
         const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
+        
+        // Inicjalizacja klienta Supabase
         const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
+        // Konfiguracja EmailJS
         const EMAILJS_SERVICE_ID = 'service_fd1cyfh';
         const EMAILJS_TEMPLATE_ID = 'template_dgg3fbn';
         const EMAILJS_PUBLIC_KEY = 'b8INQFoKRQeN2hO6M';
         
-        // Inicjalizacja EmailJS
+        // Inicjalizacja EmailJS (TO BYŁO BRAKUJĄCE)
         emailjs.init(EMAILJS_PUBLIC_KEY);
         
-        // Elementy
+        // Elementy DOM
         const emailInput = document.getElementById('waitlistEmail');
         const emailInputBottom = document.getElementById('waitlistEmailBottom');
         const joinBtn = document.getElementById('joinBtn');
         const joinBtnBottom = document.getElementById('joinBtnBottom');
-        const successMsg = document.getElementById('successMsg');
+        const successMsgDiv = document.getElementById('successMsg');
         const errorMsgDiv = document.getElementById('errorMsg');
         const counterSpan = document.getElementById('counter');
-        const toastMsg = document.getElementById('toastMsg');
+        const toastMsgDiv = document.getElementById('toastMsg');
         
         let isSending = false;
         
@@ -920,7 +923,7 @@
             }
         }
         
-        // Funkcja zapisu
+        // Główna funkcja zapisu (NAJPIERW SUAPBASE, POTEM EMAILJS)
         async function addToWaitlist(email) {
             if (!email || !email.includes('@')) {
                 errorMsgDiv.style.display = 'block';
@@ -935,7 +938,7 @@
             joinBtnBottom.disabled = true;
             
             try {
-                // Sprawdź czy email już istnieje
+                // Krok 1: Sprawdź czy email już istnieje
                 const { data: existing, error: checkError } = await supabase
                     .from('waitlist')
                     .select('email')
@@ -952,14 +955,14 @@
                     return false;
                 }
                 
-                // Zapisz do Supabase
+                // Krok 2: Zapisz do Supabase (TABELA 'waitlist', KOLUMNA 'email')
                 const { error: insertError } = await supabase
                     .from('waitlist')
                     .insert([{ email: email, signed_up_at: new Date().toISOString() }]);
                 
                 if (insertError) throw insertError;
                 
-                // Wyślij maila powitalnego przez EmailJS
+                // Krok 3: Wyślij maila przez EmailJS
                 try {
                     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                         to_email: email,
@@ -967,17 +970,26 @@
                         message: 'Dziękujemy za dołączenie do listy VaultLink! Otrzymasz powiadomienie gdy wystartujemy.'
                     });
                 } catch (emailError) {
-                    console.warn('EmailJS błąd, ale zapisany w bazie:', emailError);
+                    console.warn('EmailJS błąd (ale zapisany w bazie):', emailError);
                 }
                 
-                // Sukces
-                successMsg.style.display = 'flex';
+                // Krok 4: Odnotuj zdarzenie w Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'sign_up', {
+                        'event_category': 'engagement',
+                        'event_label': 'waitlist_success'
+                    });
+                }
+                
+                // Sukces - pokaż komunikaty
+                successMsgDiv.style.display = 'flex';
                 if (emailInput) emailInput.value = '';
                 if (emailInputBottom) emailInputBottom.value = '';
                 
-                toastMsg.classList.add('show');
-                setTimeout(() => toastMsg.classList.remove('show'), 4000);
+                toastMsgDiv.classList.add('show');
+                setTimeout(() => toastMsgDiv.classList.remove('show'), 4000);
                 
+                // Odśwież licznik
                 await fetchCount();
                 return true;
                 
@@ -994,28 +1006,39 @@
             }
         }
         
-        // Event listeners
-        joinBtn.addEventListener('click', () => {
+        // Event Listenery z zapobieganiem domyślnej akcji
+        const handleSubmit = (e, emailValue) => {
+            if (e) e.preventDefault();
+            addToWaitlist(emailValue);
+        };
+        
+        joinBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             const email = emailInput.value.trim();
             addToWaitlist(email);
         });
         
-        joinBtnBottom.addEventListener('click', () => {
+        joinBtnBottom.addEventListener('click', (e) => {
+            e.preventDefault();
             const email = emailInputBottom.value.trim();
             addToWaitlist(email);
         });
         
-        // Enter key
-        const handleEnter = (e, fieldId) => {
+        // Obsługa klawisza Enter
+        const handleEnter = (e, inputElement) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const email = document.getElementById(fieldId).value.trim();
+                const email = inputElement.value.trim();
                 addToWaitlist(email);
             }
         };
         
-        if (emailInput) emailInput.addEventListener('keypress', (e) => handleEnter(e, 'waitlistEmail'));
-        if (emailInputBottom) emailInputBottom.addEventListener('keypress', (e) => handleEnter(e, 'waitlistEmailBottom'));
+        if (emailInput) {
+            emailInput.addEventListener('keypress', (e) => handleEnter(e, emailInput));
+        }
+        if (emailInputBottom) {
+            emailInputBottom.addEventListener('keypress', (e) => handleEnter(e, emailInputBottom));
+        }
         
         // Załaduj licznik
         fetchCount();
