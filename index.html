@@ -883,8 +883,8 @@
         const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
         
-        // Inicjalizacja klienta Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Inicjalizacja klienta Supabase z unikalną nazwą (podkreślnik, aby uniknąć konfliktu)
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // Konfiguracja EmailJS
         const EMAILJS_SERVICE_ID = 'service_fd1cyfh';
@@ -909,7 +909,7 @@
         // Pobranie liczby zapisów
         async function fetchCount() {
             try {
-                const { count, error } = await supabase
+                const { count, error } = await _supabase
                     .from('waitlist')
                     .select('*', { count: 'exact', head: true });
                 if (!error && count !== null) {
@@ -923,7 +923,7 @@
             }
         }
         
-        // Główna funkcja zapisu
+        // Główna funkcja zapisu (najpierw Supabase, potem EmailJS)
         async function addToWaitlist(email) {
             if (!email || !email.includes('@')) {
                 errorMsgDiv.style.display = 'block';
@@ -938,8 +938,8 @@
             joinBtnBottom.disabled = true;
             
             try {
-                // Sprawdź czy email już istnieje
-                const { data: existing, error: checkError } = await supabase
+                // Krok 1: Sprawdź czy email już istnieje
+                const { data: existing, error: checkError } = await _supabase
                     .from('waitlist')
                     .select('email')
                     .eq('email', email)
@@ -955,14 +955,14 @@
                     return false;
                 }
                 
-                // Zapisz do Supabase
-                const { error: insertError } = await supabase
+                // Krok 2: Zapisz do Supabase (tabela 'waitlist', kolumna 'email')
+                const { error: insertError } = await _supabase
                     .from('waitlist')
                     .insert([{ email: email, signed_up_at: new Date().toISOString() }]);
                 
                 if (insertError) throw insertError;
                 
-                // Wyślij maila przez EmailJS
+                // Krok 3: Wyślij maila przez EmailJS
                 try {
                     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                         to_email: email,
@@ -973,7 +973,7 @@
                     console.warn('EmailJS błąd (ale zapisany w bazie):', emailError);
                 }
                 
-                // Zdarzenie w Google Analytics
+                // Krok 4: Odnotuj zdarzenie w Google Analytics
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'sign_up', {
                         'event_category': 'engagement',
@@ -1006,7 +1006,7 @@
             }
         }
         
-        // Event listenery z e.preventDefault()
+        // Event listenery z e.preventDefault() aby uniknąć odświeżania strony
         joinBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const email = emailInput.value.trim();
