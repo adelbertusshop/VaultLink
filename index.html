@@ -421,6 +421,7 @@
         </div>
         <div class="user-info">
             <span class="user-email" id="userEmail">ładowanie...</span>
+            <span class="user-email" id="userEmail2">ładowanie...</span>
             <button class="logout-btn" id="logoutBtn">Wyloguj</button>
         </div>
     </div>
@@ -497,6 +498,8 @@
         }
         currentUser = session.user;
         userEmailSpan.innerText = currentUser.email || currentUser.user_metadata?.email || 'użytkownik';
+        const userEmailSpan2 = document.getElementById('userEmail2');
+        if (userEmailSpan2) userEmailSpan2.innerText = userEmailSpan.innerText;
         return session;
     }
 
@@ -692,7 +695,7 @@
         });
     }
 
-    Javascript
+    init();
 </script>
 </body>
 </html>
