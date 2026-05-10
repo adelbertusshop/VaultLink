@@ -470,7 +470,7 @@
 <script>
     const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let allLinks = [];
@@ -491,7 +491,7 @@
     const modalTag = document.getElementById('modalTag');
 
     async function checkSessionAndRedirect() {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (!session) {
             window.location.href = 'login.html';
             return null;
@@ -505,7 +505,7 @@
 
     async function fetchLinks() {
         if (!currentUser) return;
-        const { data, error } = await supabase
+        const { data, error } = await supabaseClient
             .from('links')
             .select('*')
             .eq('user_id', currentUser.id)
@@ -580,7 +580,7 @@
 
     async function deleteLink(linkId) {
         if (!currentUser) return;
-        const { error } = await supabase.from('links').delete().eq('id', linkId).eq('user_id', currentUser.id);
+        const { error } = await supabaseClient.from('links').delete().eq('id', linkId).eq('user_id', currentUser.id);
         if (error) {
             alert('Błąd usuwania: ' + error.message);
         } else {
@@ -595,7 +595,7 @@
             alert('URL i Tytuł są wymagane');
             return false;
         }
-        const { data, error } = await supabase.from('links').insert([{
+        const { data, error } = await supabaseClient.from('links').insert([{
             user_id: currentUser.id,
             url: url.trim(),
             title: title.trim(),
@@ -652,7 +652,7 @@
 
     function setupEventListeners() {
         logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
         });
 
@@ -684,7 +684,7 @@
         if (!session) return;
         setupEventListeners();
         await fetchLinks();
-        supabase.auth.onAuthStateChange(async (event, sess) => {
+        supabaseClient.auth.onAuthStateChange(async (event, sess) => {
             if (event === 'SIGNED_OUT') {
                 window.location.href = 'login.html';
             } else if (event === 'SIGNED_IN' && sess) {
