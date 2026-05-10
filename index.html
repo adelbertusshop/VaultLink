@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>VaultLink — Zaloguj się lub dołącz</title>
-    <meta name="description" content="Bezpieczne logowanie i rejestracja do VaultLink. Twoje linki, Twoje szyfrowanie.">
+    <title>VaultLink — Twoja zaszyfrowana baza linków</title>
+    <meta name="description" content="Zarządzaj swoimi linkami, notatkami i tagami w bezpiecznej, zaszyfrowanej przestrzeni.">
     
-    <!-- Google Fonts: Syne + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Supabase JS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
@@ -24,35 +22,29 @@
         :root {
             --bg: #080a0f;
             --surface: #0d1017;
-            --surface-elevated: #131720;
-            --border-subtle: rgba(255, 255, 255, 0.06);
+            --surface-hover: #131720;
+            --border: rgba(255, 255, 255, 0.06);
             --border-glow: rgba(0, 255, 170, 0.25);
             --accent: #00ffaa;
-            --accent-hover: #00e69a;
+            --accent-dark: #00cc88;
             --danger: #ff3b5c;
-            --danger-glow: rgba(255, 59, 92, 0.25);
+            --danger-hover: #e62e4f;
             --text-primary: #f0f3fa;
             --text-secondary: #8e95a8;
             --muted: #4a4f62;
             --font-display: 'Syne', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
-            --transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            --transition: all 0.2s ease;
         }
 
         body {
             background: var(--bg);
-            font-family: var(--font-display);
             color: var(--text-primary);
+            font-family: var(--font-display);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
-            overflow-x: hidden;
-            padding: 24px;
         }
 
-        /* noise + grid background */
         body::before {
             content: '';
             position: fixed;
@@ -62,621 +54,645 @@
             z-index: 0;
         }
 
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: linear-gradient(rgba(0, 255, 170, 0.02) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 255, 170, 0.02) 1px, transparent 1px);
-            background-size: 48px 48px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* animated orb */
-        .orb-bg {
-            position: fixed;
-            width: 70vw;
-            height: 70vw;
-            max-width: 800px;
-            max-height: 800px;
-            background: radial-gradient(circle, rgba(0, 255, 170, 0.08), transparent 70%);
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            filter: blur(90px);
-            z-index: 0;
-            opacity: 0.6;
-            animation: floatOrb 18s infinite alternate;
-        }
-
-        @keyframes floatOrb {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
-            100% { transform: translate(-50%, -55%) scale(1.2); opacity: 0.7; }
-        }
-
-        /* card container */
-        .auth-container {
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 24px 48px;
             position: relative;
             z-index: 2;
-            width: 100%;
-            max-width: 520px;
-            margin: 0 auto;
-            animation: fadeInUp 0.65s ease forwards;
+            animation: fadeIn 0.4s ease;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(28px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .card {
-            background: rgba(13, 16, 23, 0.8);
-            backdrop-filter: blur(18px);
-            border: 1px solid var(--border-subtle);
-            border-radius: 32px;
-            padding: 40px 32px 44px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(0, 255, 170, 0.1);
-            transition: box-shadow 0.3s;
-        }
-
-        .card:hover {
-            border-color: var(--border-glow);
-            box-shadow: 0 30px 55px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 255, 170, 0.2);
-        }
-
-        /* logo area */
-        .logo-area {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .logo-icon-big {
-            display: inline-flex;
+        /* navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 28px;
-            font-weight: 700;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: rgba(13, 16, 23, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 60px;
+            padding: 12px 28px;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-family: var(--font-mono);
+            font-weight: 600;
+            font-size: 20px;
             color: var(--accent);
-            background: rgba(0, 255, 170, 0.08);
-            padding: 8px 22px;
-            border-radius: 80px;
-            border: 1px solid rgba(0, 255, 170, 0.3);
-            backdrop-filter: blur(4px);
         }
 
-        .logo-icon-big span:first-child {
-            font-size: 28px;
+        .logo span:first-child {
+            font-size: 26px;
         }
 
-        .logo-icon-big span:last-child {
-            letter-spacing: -0.5px;
-        }
-
-        .subhead {
-            text-align: center;
-            margin-top: 14px;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
             font-family: var(--font-mono);
             font-size: 13px;
-            color: var(--text-secondary);
-            border-top: 1px solid var(--border-subtle);
-            display: inline-block;
-            width: auto;
-            padding-top: 12px;
-        }
-
-        /* toggle buttons */
-        .toggle-row {
-            display: flex;
-            gap: 12px;
             background: var(--surface);
-            padding: 6px;
-            border-radius: 60px;
-            margin-bottom: 32px;
-            border: 1px solid var(--border-subtle);
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: 1px solid var(--border);
         }
 
-        .toggle-btn {
-            flex: 1;
-            text-align: center;
+        .user-email {
+            color: var(--text-secondary);
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .logout-btn {
             background: transparent;
-            border: none;
-            padding: 10px 12px;
-            font-family: var(--font-display);
-            font-weight: 600;
-            font-size: 16px;
-            border-radius: 50px;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-family: var(--font-mono);
+            font-size: 12px;
             cursor: pointer;
             transition: var(--transition);
-            color: var(--text-secondary);
         }
 
-        .toggle-btn.active {
-            background: var(--accent);
-            color: #080a0f;
-            box-shadow: 0 2px 8px rgba(0, 255, 170, 0.3);
+        .logout-btn:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255, 59, 92, 0.08);
         }
 
-        /* form group */
-        .form-group {
-            margin-bottom: 24px;
+        /* controls row */
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 32px;
         }
 
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            font-family: var(--font-mono);
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            letter-spacing: 0.3px;
+        .search-box {
+            flex: 1;
+            min-width: 220px;
         }
 
-        .input-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .input-wrapper input {
+        .search-box input {
             width: 100%;
             background: var(--surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 48px;
+            padding: 12px 20px;
             font-family: var(--font-mono);
             font-size: 14px;
             color: var(--text-primary);
+            outline: none;
             transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(0, 255, 170, 0.2);
+        }
+
+        .add-btn {
+            background: var(--accent);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 48px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 14px;
+            color: #080a0f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-btn:hover {
+            background: var(--accent-dark);
+            transform: scale(0.97);
+        }
+
+        /* tag filters */
+        .tag-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 32px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-chip {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+
+        .filter-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #080a0f;
+            font-weight: 600;
+        }
+
+        .filter-chip:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* links grid */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-top: 12px;
+        }
+
+        .link-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 20px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .link-card:hover {
+            border-color: var(--border-glow);
+            background: var(--surface-hover);
+            transform: translateY(-3px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            word-break: break-word;
+            padding-right: 12px;
+        }
+
+        .delete-link {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .delete-link:hover {
+            color: var(--danger);
+            background: rgba(255, 59, 92, 0.1);
+        }
+
+        .card-url {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 12px;
+            word-break: break-all;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .card-url:hover {
+            text-decoration: underline;
+        }
+
+        .card-tag {
+            display: inline-block;
+            background: rgba(0, 255, 170, 0.12);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            margin-bottom: 12px;
+            border: 0.5px solid rgba(0, 255, 170, 0.3);
+        }
+
+        .card-note {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-top: 10px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 70px 20px;
+            background: var(--surface);
+            border-radius: 32px;
+            border: 1px dashed var(--border);
+            color: var(--muted);
+            font-family: var(--font-mono);
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 10, 15, 0.85);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 32px;
+            max-width: 520px;
+            width: 100%;
+            padding: 32px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-content h3 {
+            font-size: 26px;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 18px;
             outline: none;
         }
 
-        .input-wrapper input:focus {
+        .modal-content input:focus, .modal-content textarea:focus, .modal-content select:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 255, 170, 0.15);
         }
 
-        .input-wrapper input::placeholder {
-            color: var(--muted);
-        }
-
-        /* action button */
-        .action-btn {
-            width: 100%;
-            background: var(--accent);
-            border: none;
-            border-radius: 60px;
-            padding: 14px 20px;
-            font-family: var(--font-display);
-            font-weight: 800;
-            font-size: 16px;
-            color: #080a0f;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 8px;
-            letter-spacing: -0.2px;
+        .modal-buttons {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 12px;
         }
 
-        .action-btn:hover {
-            background: var(--accent-hover);
-            transform: scale(0.98);
-            box-shadow: 0 4px 14px rgba(0, 255, 170, 0.4);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .error-message {
-            background: rgba(255, 59, 92, 0.12);
-            border-left: 3px solid var(--danger);
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: #ff8a9e;
-            margin-bottom: 20px;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
-
-        .info-message {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 13px;
-            font-family: var(--font-mono);
-        }
-
-        .back-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-bottom: 1px dashed var(--muted);
-            transition: var(--transition);
-        }
-
-        .back-link:hover {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        hr {
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            cursor: pointer;
             border: none;
-            height: 1px;
-            background: var(--border-subtle);
-            margin: 24px 0 16px;
         }
 
-        .footer-note {
-            text-align: center;
-            font-size: 11px;
-            font-family: var(--font-mono);
-            color: var(--muted);
-            margin-top: 24px;
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
         }
 
-        /* mobile responsive */
-        @media (max-width: 540px) {
-            .card {
-                padding: 30px 20px 36px;
-            }
-            .toggle-btn {
-                font-size: 14px;
-                padding: 8px 10px;
-            }
-            .action-btn {
-                padding: 12px 16px;
-            }
-            body {
+        .btn-save {
+            background: var(--accent);
+            color: #080a0f;
+        }
+
+        @media (max-width: 680px) {
+            .app-container {
                 padding: 16px;
             }
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(8, 10, 15, 0.3);
-            border-top: 2px solid #080a0f;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 28px;
+            }
+            .user-info {
+                justify-content: space-between;
+            }
+            .links-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-<div class="orb-bg"></div>
-<div class="auth-container">
-    <div class="card">
-        <div class="logo-area">
-            <div class="logo-icon-big">
-                <span>🔐</span>
-                <span>VaultLink</span>
-            </div>
-            <div class="subhead">Twoje linki · Zero dostępu</div>
+<div class="app-container">
+    <div class="navbar">
+        <div class="logo">
+            <span>🔐</span>
+            <span>VaultLink</span>
         </div>
-
-        <!-- toggle login / register -->
-        <div class="toggle-row">
-            <button class="toggle-btn active" id="btnLoginMode">Zaloguj się</button>
-            <button class="toggle-btn" id="btnRegisterMode">Zarejestruj się</button>
+        <div class="user-info">
+            <span class="user-email" id="userEmail">ładowanie...</span>
+            <button class="logout-btn" id="logoutBtn">Wyloguj</button>
         </div>
+    </div>
 
-        <!-- global error banner -->
-        <div id="globalError" class="error-message"></div>
-
-        <!-- LOGIN FORM (visible domyślnie) -->
-        <form id="loginForm" style="display: block;">
-            <div class="form-group">
-                <label>Email</label>
-                <div class="input-wrapper">
-                    <input type="email" id="loginEmail" placeholder="twoj@email.com" autocomplete="email">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Hasło</label>
-                <div class="input-wrapper">
-                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
-                </div>
-            </div>
-            <button type="submit" id="loginBtn" class="action-btn">
-                <span>→ Zaloguj się</span>
-            </button>
-        </form>
-
-        <!-- REGISTER FORM (hidden początkowo) -->
-        <form id="registerForm" style="display: none;">
-            <div class="form-group">
-                <label>Email</label>
-                <div class="input-wrapper">
-                    <input type="email" id="regEmail" placeholder="twoj@email.com" autocomplete="email">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Hasło</label>
-                <div class="input-wrapper">
-                    <input type="password" id="regPassword" placeholder="minimum 6 znaków" autocomplete="new-password">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Potwierdź hasło</label>
-                <div class="input-wrapper">
-                    <input type="password" id="regConfirmPassword" placeholder="powtórz hasło" autocomplete="off">
-                </div>
-            </div>
-            <button type="submit" id="registerBtn" class="action-btn">
-                <span>✚ Zarejestruj się</span>
-            </button>
-        </form>
-
-        <hr>
-        <div class="info-message">
-            <a href="index.html" class="back-link">← Powrót do strony głównej</a>
+    <div class="controls-row">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Szukaj w tytułach lub URL...">
         </div>
-        <div class="footer-note">
-            Szyfrowanie end-to-end · Twoja prywatność
+        <button class="add-btn" id="openModalBtn">+ Dodaj link</button>
+    </div>
+
+    <div class="tag-filters" id="tagFiltersContainer">
+        <button data-tag="all" class="filter-chip active">Wszystkie</button>
+        <button data-tag="praca" class="filter-chip">praca</button>
+        <button data-tag="dev" class="filter-chip">dev</button>
+        <button data-tag="finanse" class="filter-chip">finanse</button>
+        <button data-tag="prywatne" class="filter-chip">prywatne</button>
+        <button data-tag="inne" class="filter-chip">inne</button>
+    </div>
+
+    <div id="linksContainer" class="links-grid">
+        <div class="empty-state">Ładowanie linków...</div>
+    </div>
+</div>
+
+<div id="linkModal" class="modal">
+    <div class="modal-content">
+        <h3>Nowy link</h3>
+        <input type="text" id="modalUrl" placeholder="URL (np. https://...)" autocomplete="off">
+        <input type="text" id="modalTitle" placeholder="Tytuł *" autocomplete="off">
+        <textarea id="modalNote" rows="3" placeholder="Notatka (opcjonalnie)"></textarea>
+        <select id="modalTag">
+            <option value="praca">praca</option>
+            <option value="dev">dev</option>
+            <option value="finanse">finanse</option>
+            <option value="prywatne">prywatne</option>
+            <option value="inne">inne</option>
+        </select>
+        <div class="modal-buttons">
+            <button class="btn-cancel" id="closeModalBtn">Anuluj</button>
+            <button class="btn-save" id="saveLinkBtn">Zapisz</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ---------- KONFIGURACJA SUPABASE ----------
     const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ---------- ELEMENTY DOM ----------
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const btnLoginMode = document.getElementById('btnLoginMode');
-    const btnRegisterMode = document.getElementById('btnRegisterMode');
-    const globalErrorDiv = document.getElementById('globalError');
+    let currentUser = null;
+    let allLinks = [];
+    let currentTagFilter = 'all';
+    let searchQuery = '';
 
-    // pola logowania
-    const loginEmail = document.getElementById('loginEmail');
-    const loginPassword = document.getElementById('loginPassword');
-    const loginBtn = document.getElementById('loginBtn');
+    const userEmailSpan = document.getElementById('userEmail');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const linksContainer = document.getElementById('linksContainer');
+    const searchInput = document.getElementById('searchInput');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const modal = document.getElementById('linkModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const saveLinkBtn = document.getElementById('saveLinkBtn');
+    const modalUrl = document.getElementById('modalUrl');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalNote = document.getElementById('modalNote');
+    const modalTag = document.getElementById('modalTag');
 
-    // pola rejestracji
-    const regEmail = document.getElementById('regEmail');
-    const regPassword = document.getElementById('regPassword');
-    const regConfirmPassword = document.getElementById('regConfirmPassword');
-    const registerBtn = document.getElementById('registerBtn');
-
-    // pomocnicze funkcje UI
-    function showError(message) {
-        globalErrorDiv.innerText = message;
-        globalErrorDiv.style.display = 'block';
-        setTimeout(() => {
-            globalErrorDiv.style.display = 'none';
-        }, 5000);
+    async function checkSessionAndRedirect() {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+            return null;
+        }
+        currentUser = session.user;
+        userEmailSpan.innerText = currentUser.email || currentUser.user_metadata?.email || 'użytkownik';
+        return session;
     }
 
-    function clearErrors() {
-        globalErrorDiv.style.display = 'none';
-        globalErrorDiv.innerText = '';
-    }
-
-    function setLoading(button, isLoading, originalText) {
-        if (isLoading) {
-            button.disabled = true;
-            button.innerHTML = `<span class="spinner"></span> <span>${originalText || 'Ładowanie...'}</span>`;
+    async function fetchLinks() {
+        if (!currentUser) return;
+        const { data, error } = await supabase
+            .from('links')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+        if (error) {
+            console.error(error);
+            allLinks = [];
         } else {
-            button.disabled = false;
-            button.innerHTML = originalText;
+            allLinks = data || [];
         }
+        renderLinks();
     }
 
-    // ---------- PRZEŁĄCZANIE TRYBÓW (bez przeładowania) ----------
-    function switchToLogin() {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-        btnLoginMode.classList.add('active');
-        btnRegisterMode.classList.remove('active');
-        clearErrors();
-        // opcjonalnie wyczyść błędy pól
-    }
-
-    function switchToRegister() {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-        btnRegisterMode.classList.add('active');
-        btnLoginMode.classList.remove('active');
-        clearErrors();
-    }
-
-    btnLoginMode.addEventListener('click', switchToLogin);
-    btnRegisterMode.addEventListener('click', switchToRegister);
-
-    // ---------- SPRAWDŹ CZY UŻYTKOWNIK JEST JUŻ ZALOGOWANY ----------
-    async function checkAlreadyLoggedIn() {
-        try {
-            const { data: { session }, error } = await supabaseClient.auth.getSession();
-            if (session) {
-                // już zalogowany → przekieruj na app.html
-                window.location.href = 'app.html';
-            }
-        } catch (err) {
-            console.warn("session check error", err);
+    function renderLinks() {
+        let filtered = [...allLinks];
+        if (searchQuery.trim() !== '') {
+            const q = searchQuery.trim().toLowerCase();
+            filtered = filtered.filter(link => 
+                (link.title && link.title.toLowerCase().includes(q)) || 
+                (link.url && link.url.toLowerCase().includes(q))
+            );
         }
-    }
-    checkAlreadyLoggedIn();
-
-    // dodatkowo nasłuch na zmiany sesji (jeśli loguje się w innej karcie)
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-            window.location.href = 'app.html';
+        if (currentTagFilter !== 'all') {
+            filtered = filtered.filter(link => link.tag === currentTagFilter);
         }
-    });
 
-    // ---------- FUNKCJA LOGOWANIA (Supabase Auth) ----------
-    async function handleLogin(e) {
-        e.preventDefault();
-        clearErrors();
-
-        const email = loginEmail.value.trim();
-        const password = loginPassword.value;
-
-        if (!email) {
-            showError('Podaj adres email.');
-            return;
-        }
-        if (!password) {
-            showError('Wprowadź hasło.');
+        if (filtered.length === 0) {
+            linksContainer.innerHTML = `<div class="empty-state">📭 ${allLinks.length === 0 ? 'Dodaj swój pierwszy link' : 'Brak wyników wyszukiwania'}</div>`;
             return;
         }
 
-        const originalBtnText = '<span>→ Zaloguj się</span>';
-        setLoading(loginBtn, true, 'Logowanie...');
-        
-        try {
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-            
-            if (error) {
-                let polishMsg = '';
-                if (error.message.includes('Invalid login credentials')) {
-                    polishMsg = 'Nieprawidłowy email lub hasło. Spróbuj ponownie.';
-                } else if (error.message.includes('Email not confirmed')) {
-                    polishMsg = 'Email nie został potwierdzony. Sprawdź skrzynkę odbiorczą.';
-                } else {
-                    polishMsg = `Błąd logowania: ${error.message}`;
+        linksContainer.innerHTML = filtered.map(link => `
+            <div class="link-card" data-link-id="${link.id}">
+                <div class="card-header">
+                    <div class="card-title">${escapeHtml(link.title || 'Bez tytułu')}</div>
+                    <button class="delete-link" data-id="${link.id}" title="Usuń link">🗑️</button>
+                </div>
+                <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="card-url">${truncateUrl(link.url)}</a>
+                <div class="card-tag">#${escapeHtml(link.tag || 'inne')}</div>
+                ${link.note ? `<div class="card-note">📝 ${escapeHtml(link.note)}</div>` : ''}
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.delete-link').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const linkId = btn.getAttribute('data-id');
+                if (confirm('Czy na pewno usunąć ten link?')) {
+                    await deleteLink(linkId);
                 }
-                throw new Error(polishMsg);
-            }
-            
-            // sukces - sesja jest aktywna, przekierowanie nastąpi przez onAuthStateChange,
-            // ale dla bezpieczeństwa od razu redirect
-            if (data.session) {
-                window.location.href = 'app.html';
+            });
+        });
+    }
+
+    function truncateUrl(url) {
+        if (!url) return '';
+        if (url.length > 50) return url.slice(0, 47) + '...';
+        return url;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    async function deleteLink(linkId) {
+        if (!currentUser) return;
+        const { error } = await supabase.from('links').delete().eq('id', linkId).eq('user_id', currentUser.id);
+        if (error) {
+            alert('Błąd usuwania: ' + error.message);
+        } else {
+            allLinks = allLinks.filter(l => l.id !== linkId);
+            renderLinks();
+        }
+    }
+
+    async function addLink(url, title, note, tag) {
+        if (!currentUser) return false;
+        if (!url || !title) {
+            alert('URL i Tytuł są wymagane');
+            return false;
+        }
+        const { data, error } = await supabase.from('links').insert([{
+            user_id: currentUser.id,
+            url: url.trim(),
+            title: title.trim(),
+            note: note ? note.trim() : null,
+            tag: tag,
+            created_at: new Date().toISOString()
+        }]).select();
+        if (error) {
+            alert('Błąd zapisu: ' + error.message);
+            return false;
+        }
+        if (data && data.length) allLinks = [data[0], ...allLinks];
+        renderLinks();
+        return true;
+    }
+
+    function openModal() {
+        modalUrl.value = '';
+        modalTitle.value = '';
+        modalNote.value = '';
+        modalTag.value = 'praca';
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    async function handleSaveLink() {
+        const url = modalUrl.value.trim();
+        const title = modalTitle.value.trim();
+        const note = modalNote.value.trim();
+        const tag = modalTag.value;
+        if (!url || !title) {
+            alert('Proszę wypełnić URL oraz Tytuł.');
+            return;
+        }
+        const success = await addLink(url, title, note, tag);
+        if (success) {
+            closeModal();
+        }
+    }
+
+    function updateFilterUI() {
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            const tagValue = chip.getAttribute('data-tag');
+            if ((tagValue === 'all' && currentTagFilter === 'all') || (tagValue === currentTagFilter)) {
+                chip.classList.add('active');
             } else {
-                window.location.href = 'app.html';
+                chip.classList.remove('active');
             }
-        } catch (err) {
-            showError(err.message || 'Wystąpił nieoczekiwany błąd. Spróbuj później.');
-            setLoading(loginBtn, false, originalBtnText);
-        }
+        });
     }
 
-    // ---------- REJESTRACJA (walidacja + Supabase) ----------
-    async function handleRegister(e) {
-        e.preventDefault();
-        clearErrors();
+    function setupEventListeners() {
+        logoutBtn.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        });
 
-        const email = regEmail.value.trim();
-        const password = regPassword.value;
-        const confirm = regConfirmPassword.value;
+        openModalBtn.addEventListener('click', openModal);
+        closeModalBtn.addEventListener('click', closeModal);
+        saveLinkBtn.addEventListener('click', handleSaveLink);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
 
-        if (!email) {
-            showError('Podaj adres email.');
-            return;
-        }
-        if (!password) {
-            showError('Hasło jest wymagane.');
-            return;
-        }
-        if (password.length < 6) {
-            showError('Hasło musi mieć co najmniej 6 znaków.');
-            return;
-        }
-        if (password !== confirm) {
-            showError('Hasła nie są identyczne. Sprawdź poprawność.');
-            return;
-        }
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderLinks();
+        });
 
-        const originalBtnText = '<span>✚ Zarejestruj się</span>';
-        setLoading(registerBtn, true, 'Rejestracja...');
-        
-        try {
-            const { data, error } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    emailRedirectTo: window.location.origin + '/app.html',
-                }
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                const tag = chip.getAttribute('data-tag');
+                if (tag === 'all') currentTagFilter = 'all';
+                else currentTagFilter = tag;
+                updateFilterUI();
+                renderLinks();
             });
-            
-            if (error) {
-                let polishMsg = '';
-                if (error.message.includes('User already registered')) {
-                    polishMsg = 'Konto z tym adresem email już istnieje. Zaloguj się zamiast tego.';
-                } else if (error.message.includes('Password should be at least')) {
-                    polishMsg = 'Hasło jest zbyt słabe — minimum 6 znaków.';
-                } else {
-                    polishMsg = `Błąd rejestracji: ${error.message}`;
-                }
-                throw new Error(polishMsg);
-            }
-            
-            // jeśli użytkownik został utworzony, Supabase może wymagać potwierdzenia email.
-            if (data.user && data.user.identities && data.user.identities.length === 0) {
-                showError('Ten email jest już zajęty. Zaloguj się lub zresetuj hasło.');
-                setLoading(registerBtn, false, originalBtnText);
-                return;
-            }
-            
-            // sukces rejestracji
-            let successMessage = 'Rejestracja udana! Sprawdź swoją skrzynkę email, aby potwierdzić konto. Następnie możesz się zalogować.';
-            showError(successMessage); // użyjemy tego jako zielony? zmieniamy styl krótko na sukces ale error div użyjemy tymczasowo w pozytywny sposób
-            const oldBg = globalErrorDiv.style.background;
-            globalErrorDiv.style.background = 'rgba(0, 255, 170, 0.12)';
-            globalErrorDiv.style.borderLeftColor = '#00ffaa';
-            globalErrorDiv.style.color = '#b0ffdd';
-            globalErrorDiv.innerText = successMessage;
-            globalErrorDiv.style.display = 'block';
-            setTimeout(() => {
-                globalErrorDiv.style.background = oldBg;
-                globalErrorDiv.style.borderLeftColor = 'var(--danger)';
-                globalErrorDiv.style.color = '#ff8a9e';
-                globalErrorDiv.style.display = 'none';
-            }, 6000);
-            
-            // wyczyść pola rejestracji
-            regEmail.value = '';
-            regPassword.value = '';
-            regConfirmPassword.value = '';
-            // automatycznie przełącz na tryb logowania, aby użytkownik mógł się zalogować
-            setTimeout(() => {
-                switchToLogin();
-                // opcjonalnie wypełnij login emailem
-                loginEmail.value = email;
-            }, 500);
-            
-        } catch (err) {
-            showError(err.message || 'Nie udało się utworzyć konta. Spróbuj ponownie.');
-        } finally {
-            setLoading(registerBtn, false, originalBtnText);
-        }
+        });
     }
 
-    // ---------- PODPIĘCIE EVENTÓW ----------
-    loginForm.addEventListener('submit', handleLogin);
-    registerForm.addEventListener('submit', handleRegister);
-    
-    // dodatkowa obsługa enter na polach (przez form submit już działa)
-    // aby uniknąć niechcianych zachowań, zabezpieczamy
+    async function init() {
+        const session = await checkSessionAndRedirect();
+        if (!session) return;
+        setupEventListeners();
+        await fetchLinks();
+        supabase.auth.onAuthStateChange(async (event, sess) => {
+            if (event === 'SIGNED_OUT') {
+                window.location.href = 'login.html';
+            } else if (event === 'SIGNED_IN' && sess) {
+                currentUser = sess.user;
+                userEmailSpan.innerText = currentUser.email;
+                await fetchLinks();
+            }
+        });
+    }
 
-    // funkcja pomocniczo pokazująca polskie komunikaty w jednym miejscu: blokada powtórnych wysłań
-    // już wszystkie błędy są obsłużone w języku polskim
+    init();
 </script>
 </body>
 </html>
