@@ -493,7 +493,7 @@
     async function checkSessionAndRedirect() {
         const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (!session) {
-            window.location.href = '/login.html';
+            window.location.href = '/app.html';
             return null;
         }
         currentUser = session.user;
@@ -653,7 +653,7 @@
     function setupEventListeners() {
         logoutBtn.addEventListener('click', async () => {
             await supabaseClient.auth.signOut();
-            window.location.href = '/login.html';
+            window.location.href = '/app.html';
         });
 
         openModalBtn.addEventListener('click', openModal);
@@ -686,7 +686,7 @@
         await fetchLinks();
         supabaseClient.auth.onAuthStateChange(async (event, sess) => {
             if (event === 'SIGNED_OUT') {
-                window.location.href = '/login.html';
+                window.location.href = '/app.html';
             } else if (event === 'SIGNED_IN' && sess) {
                 currentUser = sess.user;
                 userEmailSpan.innerText = currentUser.email;
