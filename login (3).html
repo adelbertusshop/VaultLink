@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VaultLink — Zaloguj się</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #080a0f;
+      --surface: #0d1017;
+      --surface2: #131720;
+      --border: rgba(255,255,255,0.06);
+      --border-glow: rgba(0,255,170,0.25);
+      --accent: #00ffaa;
+      --accent2: #00aaff;
+      --danger: #ff3b5c;
+      --text: #e8eaf0;
+      --muted: #5a6070;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 60px rgba(0,255,170,0.04);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 0;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* FORM */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus { border-color: var(--border-glow); }
+    .form-input::placeholder { color: var(--muted); }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover { background: #00ffcc; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-box {
+      display: none;
+      background: rgba(255,59,92,0.08);
+      border: 1px solid rgba(255,59,92,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #ff8a9e;
+      margin-bottom: 16px;
+    }
+
+    .success-box {
+      display: none;
+      background: rgba(0,255,170,0.06);
+      border: 1px solid rgba(0,255,170,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .back-link {
+      position: relative;
+      z-index: 1;
+      margin-top: 24px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <a class="logo" href="/index.html">
+    <div class="logo-icon">🔒</div>
+    VaultLink
+  </a>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin">Zaloguj się</button>
+      <button class="tab" id="tabRegister">Zarejestruj się</button>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+    <div class="success-box" id="successBox"></div>
+
+    <!-- LOGIN -->
+    <div class="panel active" id="panelLogin">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="twój@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasło</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••"/>
+      </div>
+      <button class="btn-submit" id="btnLogin">→ Zaloguj się</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="panel" id="panelRegister">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="twój@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasło</label>
+        <input class="form-input" type="password" id="regPassword" placeholder="min. 6 znaków"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Potwierdź hasło</label>
+        <input class="form-input" type="password" id="regConfirm" placeholder="••••••••"/>
+      </div>
+      <button class="btn-submit" id="btnRegister">✚ Zarejestruj się</button>
+    </div>
+  </div>
+
+  <a class="back-link" href="/index.html">← Wróć do strony głównej</a>
+
+  <script>
+    const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
+
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Sprawdź czy już zalogowany
+    _supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = '/app.html';
+    });
+
+    // DOM
+    const tabLogin    = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const panelLogin  = document.getElementById('panelLogin');
+    const panelReg    = document.getElementById('panelRegister');
+    const errorBox    = document.getElementById('errorBox');
+    const successBox  = document.getElementById('successBox');
+    const btnLogin    = document.getElementById('btnLogin');
+    const btnRegister = document.getElementById('btnRegister');
+
+    // TABS
+    tabLogin.addEventListener('click', () => {
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      panelLogin.classList.add('active');
+      panelReg.classList.remove('active');
+      hideMessages();
+    });
+
+    tabRegister.addEventListener('click', () => {
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+      panelReg.classList.add('active');
+      panelLogin.classList.remove('active');
+      hideMessages();
+    });
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = 'block';
+      successBox.style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+      successBox.textContent = msg;
+      successBox.style.display = 'block';
+      errorBox.style.display = 'none';
+    }
+
+    function hideMessages() {
+      errorBox.style.display = 'none';
+      successBox.style.display = 'none';
+    }
+
+    // LOGIN
+    btnLogin.addEventListener('click', async () => {
+      hideMessages();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email) { showError('Podaj adres email.'); return; }
+      if (!password) { showError('Podaj hasło.'); return; }
+
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'Logowanie...';
+
+      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        btnLogin.disabled = false;
+        btnLogin.textContent = '→ Zaloguj się';
+        if (error.message.includes('Invalid login credentials')) {
+          showError('Nieprawidłowy email lub hasło.');
+        } else if (error.message.includes('Email not confirmed')) {
+          showError('Potwierdź email — sprawdź skrzynkę.');
+        } else {
+          showError('Błąd: ' + error.message);
+        }
+        return;
+      }
+
+      window.location.href = '/app.html';
+    });
+
+    // REGISTER
+    btnRegister.addEventListener('click', async () => {
+      hideMessages();
+      const email    = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm  = document.getElementById('regConfirm').value;
+
+      if (!email) { showError('Podaj adres email.'); return; }
+      if (!password) { showError('Podaj hasło.'); return; }
+      if (password.length < 6) { showError('Hasło musi mieć min. 6 znaków.'); return; }
+      if (password !== confirm) { showError('Hasła nie są identyczne.'); return; }
+
+      btnRegister.disabled = true;
+      btnRegister.textContent = 'Rejestracja...';
+
+      const { data, error } = await _supabase.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: window.location.origin + '/app.html' }
+      });
+
+      btnRegister.disabled = false;
+      btnRegister.textContent = '✚ Zarejestruj się';
+
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          showError('Ten email jest już zarejestrowany. Zaloguj się.');
+        } else {
+          showError('Błąd: ' + error.message);
+        }
+        return;
+      }
+
+      showSuccess('Sprawdź skrzynkę — wysłaliśmy link potwierdzający.');
+      document.getElementById('regEmail').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regConfirm').value = '';
+
+      setTimeout(() => {
+        tabLogin.click();
+        document.getElementById('loginEmail').value = email;
+      }, 1500);
+    });
+
+    // Enter key
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      if (panelLogin.classList.contains('active')) btnLogin.click();
+      else btnRegister.click();
+    });
+  </script>
+</body>
+</html>
