@@ -1,1042 +1,411 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>VaultLink — Twoje linki. Zaszyfrowane. Tylko Twoje.</title>
-    <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-524QFQM84F');
-    </script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VaultLink — Zaloguj się</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #080a0f;
+      --surface: #0d1017;
+      --surface2: #131720;
+      --border: rgba(255,255,255,0.06);
+      --border-glow: rgba(0,255,170,0.25);
+      --accent: #00ffaa;
+      --accent2: #00aaff;
+      --danger: #ff3b5c;
+      --text: #e8eaf0;
+      --muted: #5a6070;
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
-    
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- EmailJS CDN (wersja 4) -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    
-    <style>
-        :root {
-            --bg: #080a0f;
-            --surface: #0d1017;
-            --surface2: #131720;
-            --border: rgba(255,255,255,0.06);
-            --border-glow: rgba(0,255,170,0.25);
-            --accent: #00ffaa;
-            --accent2: #00aaff;
-            --danger: #ff3b5c;
-            --text: #e8eaf0;
-            --muted: #5a6070;
-            --font-display: 'Syne', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
-        
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-display);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        /* NOISE TEXTURE */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.4;
-        }
-        
-        /* GRID BACKGROUND */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        /* NAV */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(20px);
-            background: rgba(8,10,15,0.8);
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .logo {
-            font-family: var(--font-mono);
-            font-size: 18px;
-            font-weight: 500;
-            color: var(--accent);
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .logo-icon {
-            width: 28px;
-            height: 28px;
-            border: 1.5px solid var(--accent);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-        
-        .nav-badge {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--accent);
-            border: 1px solid var(--border-glow);
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: rgba(0,255,170,0.05);
-        }
-        
-        /* HERO */
-        .hero {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 120px 24px 80px;
-            text-align: center;
-        }
-        
-        .hero-tag {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 32px;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 20px;
-            border: 1px solid var(--border-glow);
-            border-radius: 30px;
-            background: rgba(0,255,170,0.04);
-            animation: fadeDown 0.8s ease both;
-        }
-        
-        .hero-tag::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--accent);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(0.7); }
-        }
-        
-        h1 {
-            font-size: clamp(42px, 8vw, 96px);
-            font-weight: 800;
-            line-height: 0.95;
-            letter-spacing: -3px;
-            margin-bottom: 28px;
-            animation: fadeUp 0.9s ease 0.1s both;
-        }
-        
-        h1 .line1 {
-            display: block;
-            color: var(--text);
-        }
-        
-        h1 .line2 {
-            display: block;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        h1 .line3 {
-            display: block;
-            color: var(--muted);
-            font-weight: 400;
-            font-size: 0.5em;
-            letter-spacing: -1px;
-            margin-top: 8px;
-        }
-        
-        .hero-sub {
-            font-family: var(--font-mono);
-            font-size: clamp(13px, 2vw, 16px);
-            color: var(--muted);
-            max-width: 520px;
-            line-height: 1.7;
-            margin-bottom: 52px;
-            animation: fadeUp 0.9s ease 0.2s both;
-        }
-        
-        /* WAITLIST FORM */
-        .waitlist-box {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 480px;
-            animation: fadeUp 0.9s ease 0.3s both;
-        }
-        
-        .input-row {
-            display: flex;
-            gap: 0;
-            border: 1px solid var(--border-glow);
-            border-radius: 12px;
-            overflow: hidden;
-            background: var(--surface);
-            transition: box-shadow 0.3s;
-        }
-        
-        .input-row:focus-within {
-            box-shadow: 0 0 0 2px rgba(0,255,170,0.2), 0 0 40px rgba(0,255,170,0.08);
-        }
-        
-        .input-row input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            padding: 16px 20px;
-            font-family: var(--font-mono);
-            font-size: 14px;
-            color: var(--text);
-        }
-        
-        .input-row input::placeholder {
-            color: var(--muted);
-        }
-        
-        .btn-join {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 16px 28px;
-            font-family: var(--font-display);
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-            letter-spacing: 0.5px;
-        }
-        
-        .btn-join:hover {
-            background: #00ffcc;
-            transform: none;
-        }
-        
-        .btn-join:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-join:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .waitlist-meta {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 16px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--muted);
-        }
-        
-        .waitlist-meta span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .counter-box {
-            margin-top: 32px;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--surface);
-            font-family: var(--font-mono);
-            font-size: 13px;
-            color: var(--muted);
-        }
-        
-        .counter-num {
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--accent);
-            min-width: 40px;
-            text-align: right;
-        }
-        
-        /* SUCCESS STATE */
-        .success-msg {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            padding: 24px;
-            border: 1px solid var(--border-glow);
-            border-radius: 12px;
-            background: rgba(0,255,170,0.04);
-            font-family: var(--font-mono);
-        }
-        
-        .success-msg .check {
-            font-size: 36px;
-        }
-        
-        .success-msg p {
-            color: var(--accent);
-            font-size: 15px;
-        }
-        
-        .success-msg small {
-            color: var(--muted);
-            font-size: 12px;
-        }
-        
-        /* GLOW ORB */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .orb-1 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(0,255,170,0.08) 0%, transparent 70%);
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(0,170,255,0.06) 0%, transparent 70%);
-            bottom: 100px;
-            right: -50px;
-        }
-        
-        /* FEATURES */
-        .features {
-            position: relative;
-            z-index: 1;
-            padding: 80px 24px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        
-        .section-label {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 48px;
-            text-align: center;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1px;
-            background: var(--border);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        
-        .feat-card {
-            background: var(--surface);
-            padding: 36px 32px;
-            transition: background 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .feat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .feat-card:hover {
-            background: var(--surface2);
-        }
-        
-        .feat-card:hover::before {
-            opacity: 1;
-        }
-        
-        .feat-icon {
-            font-size: 28px;
-            margin-bottom: 20px;
-            display: block;
-        }
-        
-        .feat-title {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-        
-        .feat-desc {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.7;
-        }
-        
-        /* PROBLEM SECTION */
-        .problem {
-            position: relative;
-            z-index: 1;
-            padding: 80px 24px;
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        
-        .problem h2 {
-            font-size: clamp(28px, 5vw, 52px);
-            font-weight: 800;
-            letter-spacing: -2px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-        }
-        
-        .problem h2 em {
-            font-style: normal;
-            color: var(--danger);
-        }
-        
-        .problem p {
-            font-family: var(--font-mono);
-            font-size: 15px;
-            color: var(--muted);
-            line-height: 1.8;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        
-        /* DIVIDER */
-        .divider {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            height: 1px;
-            background: var(--border);
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* MOCKUP */
-        .mockup-section {
-            position: relative;
-            z-index: 1;
-            padding: 80px 24px;
-            text-align: center;
-        }
-        
-        .mockup-window {
-            display: inline-block;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            max-width: 700px;
-            width: 100%;
-            box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 60px rgba(0,255,170,0.05);
-        }
-        
-        .mockup-bar {
-            background: var(--surface2);
-            padding: 14px 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        
-        .dot-r { background: #ff5f57; }
-        .dot-y { background: #febc2e; }
-        .dot-g { background: #28c840; }
-        
-        .mockup-url {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--muted);
-            margin-left: 12px;
-            background: var(--bg);
-            padding: 4px 12px;
-            border-radius: 4px;
-            flex: 1;
-            text-align: left;
-        }
-        
-        .mockup-body {
-            padding: 24px;
-            text-align: left;
-        }
-        
-        .mock-search {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .mock-search span {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            color: var(--muted);
-        }
-        
-        .mock-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .mock-link {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: border-color 0.2s;
-        }
-        
-        .mock-link:hover {
-            border-color: var(--border-glow);
-        }
-        
-        .mock-favicon {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-        
-        .mock-link-info {
-            flex: 1;
-        }
-        
-        .mock-link-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-        
-        .mock-link-url {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--muted);
-        }
-        
-        .mock-tag {
-            font-family: var(--font-mono);
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            border: 1px solid;
-        }
-        
-        .tag-green {
-            color: var(--accent);
-            border-color: rgba(0,255,170,0.3);
-            background: rgba(0,255,170,0.05);
-        }
-        
-        .tag-blue {
-            color: var(--accent2);
-            border-color: rgba(0,170,255,0.3);
-            background: rgba(0,170,255,0.05);
-        }
-        
-        .tag-red {
-            color: var(--danger);
-            border-color: rgba(255,59,92,0.3);
-            background: rgba(255,59,92,0.05);
-        }
-        
-        .mock-lock {
-            font-size: 12px;
-            color: var(--accent);
-            margin-left: auto;
-        }
-        
-        /* CTA BOTTOM */
-        .cta-bottom {
-            position: relative;
-            z-index: 1;
-            padding: 80px 24px 120px;
-            text-align: center;
-        }
-        
-        .cta-bottom h2 {
-            font-size: clamp(28px, 5vw, 56px);
-            font-weight: 800;
-            letter-spacing: -2px;
-            margin-bottom: 16px;
-        }
-        
-        .cta-bottom p {
-            font-family: var(--font-mono);
-            font-size: 14px;
-            color: var(--muted);
-            margin-bottom: 40px;
-        }
-        
-        /* FOOTER */
-        footer {
-            position: relative;
-            z-index: 1;
-            padding: 24px 40px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--muted);
-        }
-        
-        /* TOAST */
-        .toast {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--surface2);
-            border: 1px solid var(--border-glow);
-            color: var(--accent);
-            font-family: var(--font-mono);
-            font-size: 13px;
-            padding: 14px 24px;
-            border-radius: 10px;
-            z-index: 999;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-        }
-        
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        /* ANIMATIONS */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* RESPONSIVE */
-        @media (max-width: 600px) {
-            nav { padding: 16px 20px; }
-            .input-row { flex-direction: column; border-radius: 12px; }
-            .btn-join { border-radius: 0 0 12px 12px; padding: 16px; }
-            footer { flex-direction: column; gap: 8px; text-align: center; }
-            .mockup-body { padding: 16px; }
-        }
-        
-        /* ERROR */
-        .error-msg {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--danger);
-            margin-top: 10px;
-            display: none;
-            text-align: center;
-        }
-    </style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-display);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      border: 1.5px solid var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 60px rgba(0,255,170,0.04);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 0;
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* FORM */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus { border-color: var(--border-glow); }
+    .form-input::placeholder { color: var(--muted); }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-submit:hover { background: #00ffcc; }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-box {
+      display: none;
+      background: rgba(255,59,92,0.08);
+      border: 1px solid rgba(255,59,92,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #ff8a9e;
+      margin-bottom: 16px;
+    }
+
+    .success-box {
+      display: none;
+      background: rgba(0,255,170,0.06);
+      border: 1px solid rgba(0,255,170,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .back-link {
+      position: relative;
+      z-index: 1;
+      margin-top: 24px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+  </style>
 </head>
 <body>
-    <!-- NAV -->
-    <nav>
-        <div class="logo">
-            <div class="logo-icon">🔒</div>
-            <span>VaultLink</span>
-        </div>
-        <div class="nav-badge">Private Beta</div>
-    </nav>
-    
-    <!-- HERO -->
-    <div class="hero">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        
-        <div class="hero-tag">Zero access. Zero trust.</div>
-        <h1>
-            <span class="line1">Twoje linki.</span>
-            <span class="line2">Zaszyfrowane.</span>
-            <span class="line3">Tylko Ty masz klucz.</span>
-        </h1>
-        <div class="hero-sub">Bezpieczna baza linków i notatek z szyfrowaniem end-to-end. Ani my, ani nikt inny nie ma dostępu do Twoich danych.</div>
-        
-        <div class="waitlist-box">
-            <div class="input-row">
-                <input type="email" id="waitlistEmail" placeholder="twój@email.com" />
-                <button class="btn-join" id="joinBtn">Dołącz do listy →</button>
-            </div>
-            <div class="waitlist-meta">
-                <span>🔐 szyfrowanie lokalnie</span>
-                <span>⚡ zero rejestracji</span>
-            </div>
-            <div class="counter-box">
-                <span>👥 wczesny dostęp:</span>
-                <span class="counter-num" id="counter">0</span>
-                <span>osób gotowych</span>
-            </div>
-            <div class="success-msg" id="successMsg">
-                <div class="check">✓</div>
-                <p>Jesteś na liście!</p>
-                <small>Otrzymasz link do VaultLink gdy wystartujemy.</small>
-            </div>
-            <div class="error-msg" id="errorMsg"></div>
-        </div>
+
+  <a class="logo" href="/index.html">
+    <div class="logo-icon">🔒</div>
+    VaultLink
+  </a>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin">Zaloguj się</button>
+      <button class="tab" id="tabRegister">Zarejestruj się</button>
     </div>
-    
-    <!-- FEATURES -->
-    <div class="features">
-        <div class="section-label">Dlaczego VaultLink?</div>
-        <div class="features-grid">
-            <div class="feat-card">
-                <span class="feat-icon">🔒</span>
-                <div class="feat-title">Klient-szyfruje</div>
-                <div class="feat-desc">Twoje dane są szyfrowane w przeglądarce zanim trafią na serwer. My widzimy tylko zaszyfrowane klocki.</div>
-            </div>
-            <div class="feat-card">
-                <span class="feat-icon">🗝️</span>
-                <div class="feat-title">Tylko Twój klucz</div>
-                <div class="feat-desc">Bez klucza — brak dostępu. Nawet my nie go nie mamy. Ty nim zarządzasz lokalnie.</div>
-            </div>
-            <div class="feat-card">
-                <span class="feat-icon">⚡</span>
-                <div class="feat-title">Zero loginów</div>
-                <div class="feat-desc">Brak haseł, baz użytkowników i śledzenia. Twoja tożsamość to tylko klucz szyfrowania.</div>
-            </div>
-        </div>
+
+    <div class="error-box" id="errorBox"></div>
+    <div class="success-box" id="successBox"></div>
+
+    <!-- LOGIN -->
+    <div class="panel active" id="panelLogin">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="twój@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasło</label>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••"/>
+      </div>
+      <button class="btn-submit" id="btnLogin">→ Zaloguj się</button>
     </div>
-    
-    <!-- PROBLEM SECTION -->
-    <div class="divider"></div>
-    <div class="problem">
-        <h2>Nie chcesz, żeby <em>Google, Notion czy menedżer linków</em> czytał Twoje notatki?</h2>
-        <p>Większość "prywatnych" rozwiązań ma dostęp do Twoich danych. VaultLink nie może — bo nie ma klucza. Szyfrujemy wszystko lokalnie, a serwer służy tylko jako przechowalnia zaszyfrowanego chaosu.</p>
+
+    <!-- REGISTER -->
+    <div class="panel" id="panelRegister">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="twój@email.com"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hasło</label>
+        <input class="form-input" type="password" id="regPassword" placeholder="min. 6 znaków"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Potwierdź hasło</label>
+        <input class="form-input" type="password" id="regConfirm" placeholder="••••••••"/>
+      </div>
+      <button class="btn-submit" id="btnRegister">✚ Zarejestruj się</button>
     </div>
-    <div class="divider"></div>
-    
-    <!-- MOCKUP -->
-    <div class="mockup-section">
-        <div class="mockup-window">
-            <div class="mockup-bar">
-                <div class="dot dot-r"></div>
-                <div class="dot dot-y"></div>
-                <div class="dot dot-g"></div>
-                <div class="mockup-url">🔒 vaultlink.app/your-vault</div>
-            </div>
-            <div class="mockup-body">
-                <div class="mock-search">
-                    <span>🔍</span>
-                    <span>szukaj w zaszyfrowanych...</span>
-                </div>
-                <div class="mock-links">
-                    <div class="mock-link">
-                        <div class="mock-favicon">📄</div>
-                        <div class="mock-link-info">
-                            <div class="mock-link-title">Design system 2025</div>
-                            <div class="mock-link-url">figma.com/file/...</div>
-                        </div>
-                        <div class="mock-tag tag-green">praca</div>
-                        <div class="mock-lock">🔒</div>
-                    </div>
-                    <div class="mock-link">
-                        <div class="mock-favicon">🎥</div>
-                        <div class="mock-link-info">
-                            <div class="mock-link-title">Jak działa szyfrowanie? (film)</div>
-                            <div class="mock-link-url">youtube.com/watch...</div>
-                        </div>
-                        <div class="mock-tag tag-blue">nauka</div>
-                        <div class="mock-lock">🔒</div>
-                    </div>
-                    <div class="mock-link">
-                        <div class="mock-favicon">💰</div>
-                        <div class="mock-link-info">
-                            <div class="mock-link-title">budżet domowy — klucz główny</div>
-                            <div class="mock-link-url">hasło: ***********</div>
-                        </div>
-                        <div class="mock-tag tag-red">prywatne</div>
-                        <div class="mock-lock">🔒</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- CTA BOTTOM -->
-    <div class="cta-bottom">
-        <h2>Nie czekaj na wyciek.<br/>Przejmij kontrolę już dziś.</h2>
-        <p>Dołącz do listy i uzyskaj wczesny dostęp do VaultLink.</p>
-        <div class="waitlist-box" style="max-width: 400px; margin: 0 auto;">
-            <div class="input-row">
-                <input type="email" id="waitlistEmailBottom" placeholder="twój@email.com" />
-                <button class="btn-join" id="joinBtnBottom">Dołącz →</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- FOOTER -->
-    <footer>
-        <span>© 2025 VaultLink — szyfrowanie klient-serwer, zero zaufania</span>
-        <span>🔐 open-source · audytowalne</span>
-    </footer>
-    
-    <div class="toast" id="toastMsg">✓ Dodano do listy oczekujących</div>
-    
-    <script>
-        // Konfiguracja Supabase
-        const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
-        
-        // Inicjalizacja klienta Supabase z unikalną nazwą (podkreślnik, aby uniknąć konfliktu)
-        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // Konfiguracja EmailJS
-        const EMAILJS_SERVICE_ID = 'service_fd1cyfh';
-        const EMAILJS_TEMPLATE_ID = 'template_dgg3fbn';
-        const EMAILJS_PUBLIC_KEY = 'b8INQFoKRQeN2hO6M';
-        
-        // Inicjalizacja EmailJS
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-        
-        // Elementy DOM
-        const emailInput = document.getElementById('waitlistEmail');
-        const emailInputBottom = document.getElementById('waitlistEmailBottom');
-        const joinBtn = document.getElementById('joinBtn');
-        const joinBtnBottom = document.getElementById('joinBtnBottom');
-        const successMsgDiv = document.getElementById('successMsg');
-        const errorMsgDiv = document.getElementById('errorMsg');
-        const counterSpan = document.getElementById('counter');
-        const toastMsgDiv = document.getElementById('toastMsg');
-        
-        let isSending = false;
-        
-        // Pobranie liczby zapisów
-        async function fetchCount() {
-            try {
-                const { count, error } = await _supabase
-                    .from('waitlist')
-                    .select('*', { count: 'exact', head: true });
-                if (!error && count !== null) {
-                    counterSpan.innerText = count;
-                } else {
-                    counterSpan.innerText = '0';
-                }
-            } catch (err) {
-                console.warn('Nie udało się pobrać licznika', err);
-                counterSpan.innerText = '0';
-            }
+  </div>
+
+  <a class="back-link" href="/index.html">← Wróć do strony głównej</a>
+
+  <script>
+    const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
+
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Sprawdź czy już zalogowany
+    _supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) window.location.href = '/app.html';
+    });
+
+    // DOM
+    const tabLogin    = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const panelLogin  = document.getElementById('panelLogin');
+    const panelReg    = document.getElementById('panelRegister');
+    const errorBox    = document.getElementById('errorBox');
+    const successBox  = document.getElementById('successBox');
+    const btnLogin    = document.getElementById('btnLogin');
+    const btnRegister = document.getElementById('btnRegister');
+
+    // TABS
+    tabLogin.addEventListener('click', () => {
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      panelLogin.classList.add('active');
+      panelReg.classList.remove('active');
+      hideMessages();
+    });
+
+    tabRegister.addEventListener('click', () => {
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+      panelReg.classList.add('active');
+      panelLogin.classList.remove('active');
+      hideMessages();
+    });
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = 'block';
+      successBox.style.display = 'none';
+    }
+
+    function showSuccess(msg) {
+      successBox.textContent = msg;
+      successBox.style.display = 'block';
+      errorBox.style.display = 'none';
+    }
+
+    function hideMessages() {
+      errorBox.style.display = 'none';
+      successBox.style.display = 'none';
+    }
+
+    // LOGIN
+    btnLogin.addEventListener('click', async () => {
+      hideMessages();
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email) { showError('Podaj adres email.'); return; }
+      if (!password) { showError('Podaj hasło.'); return; }
+
+      btnLogin.disabled = true;
+      btnLogin.textContent = 'Logowanie...';
+
+      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        btnLogin.disabled = false;
+        btnLogin.textContent = '→ Zaloguj się';
+        if (error.message.includes('Invalid login credentials')) {
+          showError('Nieprawidłowy email lub hasło.');
+        } else if (error.message.includes('Email not confirmed')) {
+          showError('Potwierdź email — sprawdź skrzynkę.');
+        } else {
+          showError('Błąd: ' + error.message);
         }
-        
-        // Główna funkcja zapisu (najpierw Supabase, potem EmailJS)
-        async function addToWaitlist(email) {
-            if (!email || !email.includes('@')) {
-                errorMsgDiv.style.display = 'block';
-                errorMsgDiv.innerText = 'Podaj poprawny adres email.';
-                setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 3000);
-                return false;
-            }
-            
-            if (isSending) return false;
-            isSending = true;
-            joinBtn.disabled = true;
-            joinBtnBottom.disabled = true;
-            
-            try {
-                // Krok 1: Sprawdź czy email już istnieje
-                const { data: existing, error: checkError } = await _supabase
-                    .from('waitlist')
-                    .select('email')
-                    .eq('email', email)
-                    .maybeSingle();
-                
-                if (existing) {
-                    errorMsgDiv.style.display = 'block';
-                    errorMsgDiv.innerText = 'Ten email jest już na liście!';
-                    setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 3000);
-                    isSending = false;
-                    joinBtn.disabled = false;
-                    joinBtnBottom.disabled = false;
-                    return false;
-                }
-                
-                // Krok 2: Zapisz do Supabase (tabela 'waitlist', kolumna 'email')
-                const { error: insertError } = await _supabase
-                    .from('waitlist')
-                    .insert([{ email: email, signed_up_at: new Date().toISOString() }]);
-                
-                if (insertError) throw insertError;
-                
-                // Krok 3: Wyślij maila przez EmailJS
-                try {
-                    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                        to_email: email,
-                        to_name: email.split('@')[0],
-                        message: 'Dziękujemy za dołączenie do listy VaultLink! Otrzymasz powiadomienie gdy wystartujemy.'
-                    });
-                } catch (emailError) {
-                    console.warn('EmailJS błąd (ale zapisany w bazie):', emailError);
-                }
-                
-                // Krok 4: Odnotuj zdarzenie w Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'sign_up', {
-                        'event_category': 'engagement',
-                        'event_label': 'waitlist_success'
-                    });
-                }
-                
-                // Sukces - pokaż komunikaty
-                successMsgDiv.style.display = 'flex';
-                if (emailInput) emailInput.value = '';
-                if (emailInputBottom) emailInputBottom.value = '';
-                
-                toastMsgDiv.classList.add('show');
-                setTimeout(() => toastMsgDiv.classList.remove('show'), 4000);
-                
-                // Odśwież licznik
-                await fetchCount();
-                return true;
-                
-            } catch (err) {
-                console.error('Błąd zapisu:', err);
-                errorMsgDiv.style.display = 'block';
-                errorMsgDiv.innerText = 'Wystąpił błąd. Spróbuj ponownie za chwilę.';
-                setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 4000);
-                return false;
-            } finally {
-                isSending = false;
-                joinBtn.disabled = false;
-                joinBtnBottom.disabled = false;
-            }
+        return;
+      }
+
+      window.location.href = '/app.html';
+    });
+
+    // REGISTER
+    btnRegister.addEventListener('click', async () => {
+      hideMessages();
+      const email    = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm  = document.getElementById('regConfirm').value;
+
+      if (!email) { showError('Podaj adres email.'); return; }
+      if (!password) { showError('Podaj hasło.'); return; }
+      if (password.length < 6) { showError('Hasło musi mieć min. 6 znaków.'); return; }
+      if (password !== confirm) { showError('Hasła nie są identyczne.'); return; }
+
+      btnRegister.disabled = true;
+      btnRegister.textContent = 'Rejestracja...';
+
+      const { data, error } = await _supabase.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: window.location.origin + '/app.html' }
+      });
+
+      btnRegister.disabled = false;
+      btnRegister.textContent = '✚ Zarejestruj się';
+
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          showError('Ten email jest już zarejestrowany. Zaloguj się.');
+        } else {
+          showError('Błąd: ' + error.message);
         }
-        
-        // Event listenery z e.preventDefault() aby uniknąć odświeżania strony
-        joinBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            addToWaitlist(email);
-        });
-        
-        joinBtnBottom.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = emailInputBottom.value.trim();
-            addToWaitlist(email);
-        });
-        
-        // Obsługa klawisza Enter
-        const handleEnter = (e, inputElement) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const email = inputElement.value.trim();
-                addToWaitlist(email);
-            }
-        };
-        
-        if (emailInput) {
-            emailInput.addEventListener('keypress', (e) => handleEnter(e, emailInput));
-        }
-        if (emailInputBottom) {
-            emailInputBottom.addEventListener('keypress', (e) => handleEnter(e, emailInputBottom));
-        }
-        
-        // Załaduj licznik
-        fetchCount();
-    </script>
+        return;
+      }
+
+      showSuccess('Sprawdź skrzynkę — wysłaliśmy link potwierdzający.');
+      document.getElementById('regEmail').value = '';
+      document.getElementById('regPassword').value = '';
+      document.getElementById('regConfirm').value = '';
+
+      setTimeout(() => {
+        tabLogin.click();
+        document.getElementById('loginEmail').value = email;
+      }, 1500);
+    });
+
+    // Enter key
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      if (panelLogin.classList.contains('active')) btnLogin.click();
+      else btnRegister.click();
+    });
+  </script>
 </body>
 </html>
+
