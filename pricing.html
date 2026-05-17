@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VaultLink — Cennik</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    :root {
+      --bg: #080a0f;
+      --surface: #0d1017;
+      --surface2: #131720;
+      --border: rgba(255,255,255,0.06);
+      --border-glow: rgba(0,255,170,0.2);
+      --accent: #00ffaa;
+      --accent2: #00aaff;
+      --danger: #ff3b5c;
+      --text: #e8eaf0;
+      --muted: #5a6070;
+      --font: 'Syne', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(0,255,170,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,170,0.02) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(8,10,15,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: var(--mono); font-size: 16px; color: var(--accent); display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .nav-links { display: flex; gap: 16px; align-items: center; }
+    .nav-link { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover { color: var(--accent); }
+    .btn-nav { font-family: var(--mono); font-size: 12px; color: #000; background: var(--accent); border: none; padding: 7px 16px; border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .btn-nav:hover { background: #00ffcc; }
+    main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 64px 24px 80px; }
+    .hero-text { text-align: center; margin-bottom: 56px; }
+    .hero-text h1 { font-size: clamp(32px, 6vw, 64px); font-weight: 800; letter-spacing: -2px; margin-bottom: 16px; }
+    .hero-text h1 span { background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-text p { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+    .toggle-wrap { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 48px; }
+    .toggle-label { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+    .toggle-label.active { color: var(--accent); }
+    .toggle { position: relative; width: 48px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; cursor: pointer; transition: 0.3s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: var(--muted); border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .toggle-slider { background: rgba(0,255,170,0.15); border-color: var(--border-glow); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: var(--accent); }
+    .save-badge { font-family: var(--mono); font-size: 10px; color: var(--accent); border: 1px solid var(--border-glow); padding: 2px 8px; border-radius: 10px; background: rgba(0,255,170,0.06); }
+    .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 64px; }
+    .plan-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; position: relative; transition: border-color 0.3s; }
+    .plan-card.popular { border-color: var(--border-glow); }
+    .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+    .plan-name { font-family: var(--mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .plan-price { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 4px; }
+    .plan-price span { font-size: 18px; font-weight: 400; color: var(--muted); }
+    .plan-period { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+    .plan-features { list-style: none; margin-bottom: 32px; display: flex; flex-direction: column; gap: 12px; }
+    .plan-features li { font-family: var(--mono); font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+    .plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .plan-features li.no::before { content: '✕'; color: var(--muted); }
+    .plan-features li.no { color: var(--muted); }
+    .btn-plan { width: 100%; padding: 13px; border-radius: 10px; font-family: var(--font); font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-plan.free { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-plan.free:hover { border-color: var(--border-glow); }
+    .btn-plan.pro { background: var(--accent); color: #000; }
+    .btn-plan.pro:hover { background: #00ffcc; }
+    .btn-plan:disabled { opacity: 0.5; cursor: not-allowed; }
+    .faq { max-width: 600px; margin: 0 auto; }
+    .faq h2 { font-size: 28px; font-weight: 800; letter-spacing: -1px; margin-bottom: 32px; text-align: center; }
+    .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+    .faq-q { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+    .faq-a { font-family: var(--mono); font-size: 13px; color: var(--muted); line-height: 1.7; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border-glow); color: var(--accent); font-family: var(--mono); font-size: 13px; padding: 12px 24px; border-radius: 10px; z-index: 999; transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); white-space: nowrap; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    @media (max-width: 600px) { .plans { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+  <a class="logo" href="/index.html">🔐 VaultLink</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/index.html">← Strona główna</a>
+    <a class="btn-nav" href="/login.html">Zaloguj się</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero-text">
+    <h1>Prosty cennik.<br/><span>Zero niespodzianek.</span></h1>
+    <p>Zacznij za darmo. Przejdź na Pro gdy potrzebujesz więcej.</p>
+  </div>
+
+  <div class="toggle-wrap">
+    <span class="toggle-label active" id="labelMonthly">Miesięcznie</span>
+    <label class="toggle">
+      <input type="checkbox" id="billingToggle"/>
+      <span class="toggle-slider"></span>
+    </label>
+    <span class="toggle-label" id="labelYearly">Rocznie</span>
+    <span class="save-badge">Oszczędzasz 35%</span>
+  </div>
+
+  <div class="plans">
+    <!-- FREE -->
+    <div class="plan-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-price">0<span> zł</span></div>
+      <div class="plan-period">na zawsze</div>
+      <ul class="plan-features">
+        <li>Do 10 linków</li>
+        <li>Wszystkie tagi</li>
+        <li>Szyfrowanie AES-256</li>
+        <li class="no">Nielimitowane linki</li>
+        <li class="no">Eksport CSV</li>
+        <li class="no">Priorytetowy support</li>
+      </ul>
+      <button class="btn-plan free" id="btnFree">Zacznij za darmo</button>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan-card popular">
+      <div class="popular-badge">⭐ Najpopularniejszy</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price" id="proPrice">4.99<span> $</span></div>
+      <div class="plan-period" id="proPeriod">miesięcznie</div>
+      <ul class="plan-features">
+        <li>Nielimitowane linki</li>
+        <li>Wszystkie tagi</li>
+        <li>Szyfrowanie AES-256</li>
+        <li>Eksport CSV</li>
+        <li>Priorytetowy support</li>
+        <li>Pierwsze 100 osób — Pro gratis</li>
+      </ul>
+      <button class="btn-plan pro" id="btnPro">Przejdź na Pro →</button>
+    </div>
+  </div>
+
+  <div class="faq">
+    <h2>Często zadawane pytania</h2>
+    <div class="faq-item">
+      <div class="faq-q">Czy mogę anulować w każdej chwili?</div>
+      <div class="faq-a">Tak. Anulujesz jednym kliknięciem w ustawieniach. Bez ukrytych opłat, bez okresu wypowiedzenia.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Czy moje dane są bezpieczne?</div>
+      <div class="faq-a">Tak. Szyfrowanie AES-256 działa lokalnie w przeglądarce. Nawet my nie mamy dostępu do Twoich linków.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Co się stanie z moimi linkami jeśli nie zapłacę?</div>
+      <div class="faq-a">Nic. Twoje dane zostają. Wracasz na plan Free z limitem 10 linków — reszta jest ukryta, nie usunięta.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Czy płatność jest bezpieczna?</div>
+      <div class="faq-a">Płatności obsługuje Stripe — lider branży, używany przez Shopify, Amazon i miliony innych firm. My nie widzimy numeru Twojej karty.</div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+  <script>
+  const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
+  const STRIPE_PK = 'pk_test_51TXlrd6NvSqUYSUxWSID4vTLlVsDnzydnVST9qDMcrr8UgYgDFQ6OIR4lCgwcTltQvKUgXMRqJP8fUZwuRYcD5ab00zvJ7wAhN';
+  const PRICE_MONTHLY = 'price_1TXm1o6NvSqUYSUxFRGr4AxE';
+  const PRICE_YEARLY = 'price_1TXm346NvSqUYSUxjhfzxzyN';
+
+  const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const stripe = Stripe(STRIPE_PK);
+
+  let isYearly = false;
+  let currentUser = null;
+
+  const toastEl = document.getElementById('toast');
+  const billingToggle = document.getElementById('billingToggle');
+  const labelMonthly = document.getElementById('labelMonthly');
+  const labelYearly = document.getElementById('labelYearly');
+  const proPrice = document.getElementById('proPrice');
+  const proPeriod = document.getElementById('proPeriod');
+  const btnPro = document.getElementById('btnPro');
+  const btnFree = document.getElementById('btnFree');
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 3500);
+  }
+
+  // Toggle miesięcznie/rocznie
+  billingToggle.addEventListener('change', () => {
+    isYearly = billingToggle.checked;
+    labelMonthly.classList.toggle('active', !isYearly);
+    labelYearly.classList.toggle('active', isYearly);
+    if (isYearly) {
+      proPrice.innerHTML = '39<span> $</span>';
+      proPeriod.textContent = 'rocznie';
+    } else {
+      proPrice.innerHTML = '4.99<span> $</span>';
+      proPeriod.textContent = 'miesięcznie';
+    }
+  });
+
+  // Sprawdź sesję
+  _supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) currentUser = session.user;
+  });
+
+  // Free button
+  btnFree.addEventListener('click', () => {
+    window.location.href = '/login.html';
+  });
+
+  // Pro button — Stripe Checkout
+  btnPro.addEventListener('click', async () => {
+    if (!currentUser) {
+      showToast('Zaloguj się najpierw aby przejść na Pro');
+      setTimeout(() => { window.location.href = '/login.html'; }, 1500);
+      return;
+    }
+
+    btnPro.disabled = true;
+    btnPro.textContent = 'Przekierowuję...';
+
+    try {
+      const priceId = isYearly ? PRICE_YEARLY : PRICE_MONTHLY;
+
+      const { data, error } = await _supabase.functions.invoke('create-checkout', {
+        body: {
+          priceId: priceId,
+          userId: currentUser.id,
+          email: currentUser.email,
+          successUrl: window.location.origin + '/app.html?upgraded=true',
+          cancelUrl: window.location.origin + '/pricing.html'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data && data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Brak URL do Stripe');
+      }
+
+    } catch (err) {
+      console.error(err);
+      showToast('Błąd — spróbuj ponownie');
+      btnPro.disabled = false;
+      btnPro.textContent = 'Przejdź na Pro →';
+    }
+  });
+</script>
+</body>
+</html>
