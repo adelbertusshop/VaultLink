@@ -98,6 +98,9 @@
     @keyframes spin{to{transform:rotate(360deg);}}
     @media(max-width:600px){.user-email{display:none;}.toolbar{flex-direction:column;}.btn-add{width:100%;}}
   </style>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#00ffaa"/>
+  <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </head>
 <body>
 <div class="loading-screen" id="loadingScreen"><div class="spinner"></div>Ładowanie...</div>
