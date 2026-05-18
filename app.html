@@ -59,9 +59,10 @@
     .tag-finanse{color:#ffd166;border:1px solid rgba(255,209,102,0.3);background:rgba(255,209,102,0.06);}
     .tag-prywatne{color:#c77dff;border:1px solid rgba(199,125,255,0.3);background:rgba(199,125,255,0.06);}
     .tag-inne{color:var(--muted);border:1px solid var(--border);background:transparent;}
-    .link-actions{display:flex;gap:8px;flex-shrink:0;}
+    .link-actions{display:flex;gap:6px;flex-shrink:0;}
     .btn-icon{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.2s;}
     .btn-icon:hover{border-color:rgba(255,59,92,0.4);color:var(--danger);background:rgba(255,59,92,0.08);}
+    .btn-icon.edit:hover{border-color:var(--border-glow);color:var(--accent);background:rgba(0,255,170,0.06);}
     .empty-state{text-align:center;padding:80px 24px;display:none;}
     .empty-state .icon{font-size:48px;margin-bottom:16px;}
     .empty-state h3{font-size:20px;font-weight:700;margin-bottom:8px;}
@@ -130,7 +131,7 @@
 </main>
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title">Nowy link</div><button class="btn-close" id="btnClose">✕</button></div>
+    <div class="modal-header"><div class="modal-title" id="modalTitleText">Nowy link</div><button class="btn-close" id="btnClose">✕</button></div>
     <div class="form-group"><label class="form-label">URL *</label><input class="form-input" type="url" id="inputUrl" placeholder="https://..."/></div>
     <div class="form-group"><label class="form-label">Tytuł *</label><input class="form-input" type="text" id="inputTitle" placeholder="Nazwa strony"/></div>
     <div class="form-group"><label class="form-label">Notatka</label><input class="form-input" type="text" id="inputNote" placeholder="Opcjonalny opis..."/></div>
@@ -153,7 +154,7 @@
   const SUPABASE_ANON_KEY='sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
   const FREE_LIMIT=10;
   const _supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  let currentUser=null,allLinks=[],currentTag='all',searchQuery='',userPlan='free';
+  let currentUser=null,allLinks=[],currentTag='all',searchQuery='',userPlan='free',editingId=null;
   const loadingScreen=document.getElementById('loadingScreen');
   const userEmailEl=document.getElementById('userEmail');
   const planBadge=document.getElementById('planBadge');
@@ -171,6 +172,7 @@
   const inputTitle=document.getElementById('inputTitle');
   const inputNote=document.getElementById('inputNote');
   const inputTag=document.getElementById('inputTag');
+  const modalTitleText=document.getElementById('modalTitleText');
   const toastEl=document.getElementById('toast');
   const limitBar=document.getElementById('limitBar');
   const limitCount=document.getElementById('limitCount');
@@ -186,13 +188,19 @@
     limitFill.className='limit-fill'+(pct>=80?' danger':'');
     btnAdd.disabled=count>=FREE_LIMIT;
   }
-  function openModal(){
-    if(userPlan==='free'&&allLinks.length>=FREE_LIMIT){upgradeOverlay.classList.add('open');return;}
-    inputUrl.value='';inputTitle.value='';inputNote.value='';inputTag.value='inne';
+  function openModal(link=null){
+    if(!link&&userPlan==='free'&&allLinks.length>=FREE_LIMIT){upgradeOverlay.classList.add('open');return;}
+    editingId=link?link.id:null;
+    modalTitleText.textContent=link?'Edytuj link':'Nowy link';
+    btnSave.textContent=link?'Zapisz zmiany':'Zapisz link';
+    inputUrl.value=link?link.url:'';
+    inputTitle.value=link?link.title:'';
+    inputNote.value=link?link.note||'':'';
+    inputTag.value=link?link.tag||'inne':'inne';
     modalOverlay.classList.add('open');
-    setTimeout(()=>inputUrl.focus(),100);
+    setTimeout(()=>inputTitle.focus(),100);
   }
-  function closeModal(){modalOverlay.classList.remove('open');}
+  function closeModal(){modalOverlay.classList.remove('open');editingId=null;}
   function closeUpgrade(){upgradeOverlay.classList.remove('open');}
   const tagIcons={praca:'💼',dev:'⚙️',finanse:'💰',prywatne:'🔒',inne:'🔗'};
   function getFiltered(){
@@ -203,7 +211,7 @@
       return matchTag&&matchSearch;
     });
   }
-  function escHtml(str){if(!str)return '';return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function escHtml(str){if(!str)return'';return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function renderLinks(){
     const filtered=getFiltered();
     linksGrid.innerHTML='';
@@ -215,8 +223,9 @@
       card.style.animationDelay=`${i*40}ms`;
       const tag=link.tag||'inne';
       const icon=tagIcons[tag]||'🔗';
-      card.innerHTML=`<div class="link-favicon">${icon}</div><div class="link-body"><div class="link-title">${escHtml(link.title)}</div><div class="link-url"><a href="${escHtml(link.url)}" target="_blank" rel="noopener">${escHtml(link.url)}</a></div><div class="link-meta"><span class="tag-badge tag-${tag}">#${tag}</span></div>${link.note?`<div class="link-note">📝 ${escHtml(link.note)}</div>`:''}</div><div class="link-actions"><button class="btn-icon" data-id="${link.id}">🗑️</button></div>`;
-      card.querySelector('.btn-icon').addEventListener('click',()=>deleteLink(link.id));
+      card.innerHTML=`<div class="link-favicon">${icon}</div><div class="link-body"><div class="link-title">${escHtml(link.title)}</div><div class="link-url"><a href="${escHtml(link.url)}" target="_blank" rel="noopener">${escHtml(link.url)}</a></div><div class="link-meta"><span class="tag-badge tag-${tag}">#${tag}</span></div>${link.note?`<div class="link-note">📝 ${escHtml(link.note)}</div>`:''}</div><div class="link-actions"><button class="btn-icon edit" data-id="${link.id}">✏️</button><button class="btn-icon delete" data-id="${link.id}">🗑️</button></div>`;
+      card.querySelector('.edit').addEventListener('click',()=>openModal(link));
+      card.querySelector('.delete').addEventListener('click',()=>deleteLink(link.id));
       linksGrid.appendChild(card);
     });
   }
@@ -225,20 +234,27 @@
     if(!currentUser)return;
     const{data,error}=await _supabase.from('links').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
     if(error){console.error(error);return;}
-    allLinks=data||[];
-    renderLinks();
-    updateLimitBar();
+    allLinks=data||[];renderLinks();updateLimitBar();
   }
-  async function addLink(){
-    if(userPlan==='free'&&allLinks.length>=FREE_LIMIT){upgradeOverlay.classList.add('open');return;}
+  async function saveLink(){
     const url=inputUrl.value.trim(),title=inputTitle.value.trim(),note=inputNote.value.trim(),tag=inputTag.value;
     if(!url||!title){showToast('URL i Tytuł są wymagane');return;}
     btnSave.disabled=true;btnSave.textContent='Zapisuję...';
-    const{data,error}=await _supabase.from('links').insert([{user_id:currentUser.id,url,title,note:note||null,tag,created_at:new Date().toISOString()}]).select();
-    btnSave.disabled=false;btnSave.textContent='Zapisz link';
-    if(error){showToast('Błąd: '+error.message);return;}
-    if(data&&data.length)allLinks.unshift(data[0]);
-    renderLinks();updateLimitBar();closeModal();showToast('✅ Link zapisany');
+    if(editingId){
+      const{data,error}=await _supabase.from('links').update({url,title,note:note||null,tag}).eq('id',editingId).eq('user_id',currentUser.id).select();
+      btnSave.disabled=false;btnSave.textContent='Zapisz zmiany';
+      if(error){showToast('Błąd: '+error.message);return;}
+      if(data&&data.length){const idx=allLinks.findIndex(l=>l.id===editingId);if(idx>-1)allLinks[idx]=data[0];}
+      showToast('✅ Link zaktualizowany');
+    } else {
+      if(userPlan==='free'&&allLinks.length>=FREE_LIMIT){upgradeOverlay.classList.add('open');btnSave.disabled=false;btnSave.textContent='Zapisz link';return;}
+      const{data,error}=await _supabase.from('links').insert([{user_id:currentUser.id,url,title,note:note||null,tag,created_at:new Date().toISOString()}]).select();
+      btnSave.disabled=false;btnSave.textContent='Zapisz link';
+      if(error){showToast('Błąd: '+error.message);return;}
+      if(data&&data.length)allLinks.unshift(data[0]);
+      showToast('✅ Link zapisany');
+    }
+    renderLinks();updateLimitBar();closeModal();
   }
   async function deleteLink(id){
     if(!confirm('Usunąć?'))return;
@@ -250,21 +266,20 @@
   async function logout(){await _supabase.auth.signOut();window.location.href='/login.html';}
   chips.forEach(chip=>{chip.addEventListener('click',()=>{chips.forEach(c=>c.classList.remove('active'));chip.classList.add('active');currentTag=chip.dataset.tag;renderLinks();});});
   btnLogout.addEventListener('click',logout);
-  btnAdd.addEventListener('click',openModal);
+  btnAdd.addEventListener('click',()=>openModal());
   btnClose.addEventListener('click',closeModal);
-  btnSave.addEventListener('click',addLink);
+  btnSave.addEventListener('click',saveLink);
   btnSkipUpgrade.addEventListener('click',closeUpgrade);
   modalOverlay.addEventListener('click',e=>{if(e.target===modalOverlay)closeModal();});
   upgradeOverlay.addEventListener('click',e=>{if(e.target===upgradeOverlay)closeUpgrade();});
   searchInput.addEventListener('input',e=>{searchQuery=e.target.value;renderLinks();});
-  [inputUrl,inputTitle,inputNote].forEach(el=>{el.addEventListener('keydown',e=>{if(e.key==='Enter')addLink();});});
+  [inputUrl,inputTitle,inputNote].forEach(el=>{el.addEventListener('keydown',e=>{if(e.key==='Enter')saveLink();});});
   async function init(){
     const{data:{session}}=await _supabase.auth.getSession();
     if(!session){window.location.href='/login.html';return;}
     currentUser=session.user;
     userEmailEl.textContent=currentUser.email||'';
-    await fetchPlan();
-    await fetchLinks();
+    await fetchPlan();await fetchLinks();
     loadingScreen.style.display='none';
     _supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')window.location.href='/login.html';});
   }
