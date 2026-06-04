@@ -26,6 +26,10 @@
     <!-- EmailJS CDN (wersja 4) -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
+    <!-- PWA Manifest & Service Worker -->
+    <link rel="manifest" href="/manifest.json"/>
+    <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+    
     <style>
         :root {
             --bg: #080a0f;
@@ -734,9 +738,7 @@
             text-align: center;
         }
     </style>
-    <link rel="manifest" href="/manifest.json"/>
     <meta name="theme-color" content="#00ffaa"/>
-    <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
 </head>
 <body>
     <!-- NAV -->
