@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>VaultLink — Twoje linki. Zaszyfrowane. Tylko Twoje.</title>
     <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
+    <link rel="manifest" href="/manifest.json"/>
+    <meta name="theme-color" content="#00ffaa"/>
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
@@ -48,10 +50,6 @@
             padding: 0;
         }
         
-        html {
-            scroll-behavior: smooth;
-        }
-        
         body {
             background: var(--bg);
             color: var(--text);
@@ -60,7 +58,6 @@
             overflow-x: hidden;
         }
         
-        /* NOISE TEXTURE */
         body::before {
             content: '';
             position: fixed;
@@ -71,7 +68,6 @@
             opacity: 0.4;
         }
         
-        /* GRID BACKGROUND */
         body::after {
             content: '';
             position: fixed;
@@ -82,7 +78,6 @@
             z-index: 0;
         }
         
-        /* NAV */
         nav {
             position: fixed;
             top: 0;
@@ -130,7 +125,6 @@
             background: rgba(0,255,170,0.05);
         }
         
-        /* HERO */
         .hero {
             position: relative;
             z-index: 1;
@@ -183,27 +177,9 @@
             animation: fadeUp 0.9s ease 0.1s both;
         }
         
-        h1 .line1 {
-            display: block;
-            color: var(--text);
-        }
-        
-        h1 .line2 {
-            display: block;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        h1 .line3 {
-            display: block;
-            color: var(--muted);
-            font-weight: 400;
-            font-size: 0.5em;
-            letter-spacing: -1px;
-            margin-top: 8px;
-        }
+        h1 .line1 { display: block; color: var(--text); }
+        h1 .line2 { display: block; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        h1 .line3 { display: block; color: var(--muted); font-weight: 400; font-size: 0.5em; letter-spacing: -1px; margin-top: 8px; }
         
         .hero-sub {
             font-family: var(--font-mono);
@@ -215,7 +191,6 @@
             animation: fadeUp 0.9s ease 0.2s both;
         }
         
-        /* WAITLIST FORM */
         .waitlist-box {
             position: relative;
             z-index: 1;
@@ -234,9 +209,7 @@
             transition: box-shadow 0.3s;
         }
         
-        .input-row:focus-within {
-            box-shadow: 0 0 0 2px rgba(0,255,170,0.2), 0 0 40px rgba(0,255,170,0.08);
-        }
+        .input-row:focus-within { box-shadow: 0 0 0 2px rgba(0,255,170,0.2), 0 0 40px rgba(0,255,170,0.08); }
         
         .input-row input {
             flex: 1;
@@ -249,9 +222,7 @@
             color: var(--text);
         }
         
-        .input-row input::placeholder {
-            color: var(--muted);
-        }
+        .input-row input::placeholder { color: var(--muted); }
         
         .btn-join {
             background: var(--accent);
@@ -267,19 +238,9 @@
             letter-spacing: 0.5px;
         }
         
-        .btn-join:hover {
-            background: #00ffcc;
-            transform: none;
-        }
-        
-        .btn-join:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-join:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .btn-join:hover { background: #00ffcc; }
+        .btn-join:active { transform: scale(0.98); }
+        .btn-join:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .waitlist-meta {
             display: flex;
@@ -292,11 +253,7 @@
             color: var(--muted);
         }
         
-        .waitlist-meta span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .waitlist-meta span { display: flex; align-items: center; gap: 6px; }
         
         .counter-box {
             margin-top: 32px;
@@ -320,7 +277,6 @@
             text-align: right;
         }
         
-        /* SUCCESS STATE */
         .success-msg {
             display: none;
             flex-direction: column;
@@ -333,21 +289,10 @@
             font-family: var(--font-mono);
         }
         
-        .success-msg .check {
-            font-size: 36px;
-        }
+        .success-msg .check { font-size: 36px; }
+        .success-msg p { color: var(--accent); font-size: 15px; }
+        .success-msg small { color: var(--muted); font-size: 12px; }
         
-        .success-msg p {
-            color: var(--accent);
-            font-size: 15px;
-        }
-        
-        .success-msg small {
-            color: var(--muted);
-            font-size: 12px;
-        }
-        
-        /* GLOW ORB */
         .orb {
             position: absolute;
             border-radius: 50%;
@@ -356,24 +301,9 @@
             z-index: 0;
         }
         
-        .orb-1 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(0,255,170,0.08) 0%, transparent 70%);
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
+        .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(0,255,170,0.08) 0%, transparent 70%); top: -100px; left: 50%; transform: translateX(-50%); }
+        .orb-2 { width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,170,255,0.06) 0%, transparent 70%); bottom: 100px; right: -50px; }
         
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(0,170,255,0.06) 0%, transparent 70%);
-            bottom: 100px;
-            right: -50px;
-        }
-        
-        /* FEATURES */
         .features {
             position: relative;
             z-index: 1;
@@ -422,35 +352,13 @@
             transition: opacity 0.3s;
         }
         
-        .feat-card:hover {
-            background: var(--surface2);
-        }
+        .feat-card:hover { background: var(--surface2); }
+        .feat-card:hover::before { opacity: 1; }
         
-        .feat-card:hover::before {
-            opacity: 1;
-        }
+        .feat-icon { font-size: 28px; margin-bottom: 20px; display: block; }
+        .feat-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+        .feat-desc { font-family: var(--font-mono); font-size: 13px; color: var(--muted); line-height: 1.7; }
         
-        .feat-icon {
-            font-size: 28px;
-            margin-bottom: 20px;
-            display: block;
-        }
-        
-        .feat-title {
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-        
-        .feat-desc {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            color: var(--muted);
-            line-height: 1.7;
-        }
-        
-        /* PROBLEM SECTION */
         .problem {
             position: relative;
             z-index: 1;
@@ -468,32 +376,11 @@
             margin-bottom: 24px;
         }
         
-        .problem h2 em {
-            font-style: normal;
-            color: var(--danger);
-        }
+        .problem h2 em { font-style: normal; color: var(--danger); }
+        .problem p { font-family: var(--font-mono); font-size: 15px; color: var(--muted); line-height: 1.8; max-width: 600px; margin: 0 auto; }
         
-        .problem p {
-            font-family: var(--font-mono);
-            font-size: 15px;
-            color: var(--muted);
-            line-height: 1.8;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+        .divider { width: 100%; max-width: 1100px; margin: 0 auto; height: 1px; background: var(--border); position: relative; z-index: 1; }
         
-        /* DIVIDER */
-        .divider {
-            width: 100%;
-            max-width: 1100px;
-            margin: 0 auto;
-            height: 1px;
-            background: var(--border);
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* MOCKUP */
         .mockup-section {
             position: relative;
             z-index: 1;
@@ -521,12 +408,7 @@
             border-bottom: 1px solid var(--border);
         }
         
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
-        
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
         .dot-r { background: #ff5f57; }
         .dot-y { background: #febc2e; }
         .dot-g { background: #28c840; }
@@ -543,10 +425,7 @@
             text-align: left;
         }
         
-        .mockup-body {
-            padding: 24px;
-            text-align: left;
-        }
+        .mockup-body { padding: 24px; text-align: left; }
         
         .mock-search {
             background: var(--bg);
@@ -559,17 +438,9 @@
             margin-bottom: 20px;
         }
         
-        .mock-search span {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            color: var(--muted);
-        }
+        .mock-search span { font-family: var(--font-mono); font-size: 13px; color: var(--muted); }
         
-        .mock-links {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .mock-links { display: flex; flex-direction: column; gap: 8px; }
         
         .mock-link {
             background: var(--bg);
@@ -582,9 +453,7 @@
             transition: border-color 0.2s;
         }
         
-        .mock-link:hover {
-            border-color: var(--border-glow);
-        }
+        .mock-link:hover { border-color: var(--border-glow); }
         
         .mock-favicon {
             width: 28px;
@@ -597,22 +466,9 @@
             flex-shrink: 0;
         }
         
-        .mock-link-info {
-            flex: 1;
-        }
-        
-        .mock-link-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-        
-        .mock-link-url {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--muted);
-        }
+        .mock-link-info { flex: 1; }
+        .mock-link-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+        .mock-link-url { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
         
         .mock-tag {
             font-family: var(--font-mono);
@@ -622,31 +478,12 @@
             border: 1px solid;
         }
         
-        .tag-green {
-            color: var(--accent);
-            border-color: rgba(0,255,170,0.3);
-            background: rgba(0,255,170,0.05);
-        }
+        .tag-green { color: var(--accent); border-color: rgba(0,255,170,0.3); background: rgba(0,255,170,0.05); }
+        .tag-blue { color: var(--accent2); border-color: rgba(0,170,255,0.3); background: rgba(0,170,255,0.05); }
+        .tag-red { color: var(--danger); border-color: rgba(255,59,92,0.3); background: rgba(255,59,92,0.05); }
         
-        .tag-blue {
-            color: var(--accent2);
-            border-color: rgba(0,170,255,0.3);
-            background: rgba(0,170,255,0.05);
-        }
+        .mock-lock { font-size: 12px; color: var(--accent); margin-left: auto; }
         
-        .tag-red {
-            color: var(--danger);
-            border-color: rgba(255,59,92,0.3);
-            background: rgba(255,59,92,0.05);
-        }
-        
-        .mock-lock {
-            font-size: 12px;
-            color: var(--accent);
-            margin-left: auto;
-        }
-        
-        /* CTA BOTTOM */
         .cta-bottom {
             position: relative;
             z-index: 1;
@@ -668,7 +505,6 @@
             margin-bottom: 40px;
         }
         
-        /* FOOTER */
         footer {
             position: relative;
             z-index: 1;
@@ -682,7 +518,6 @@
             color: var(--muted);
         }
         
-        /* TOAST */
         .toast {
             position: fixed;
             bottom: 32px;
@@ -700,11 +535,8 @@
             white-space: nowrap;
         }
         
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
         
-        /* ANIMATIONS */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(24px); }
             to { opacity: 1; transform: translateY(0); }
@@ -715,7 +547,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* RESPONSIVE */
         @media (max-width: 600px) {
             nav { padding: 16px 20px; }
             .input-row { flex-direction: column; border-radius: 12px; }
@@ -724,7 +555,6 @@
             .mockup-body { padding: 16px; }
         }
         
-        /* ERROR */
         .error-msg {
             font-family: var(--font-mono);
             font-size: 12px;
@@ -733,13 +563,16 @@
             display: none;
             text-align: center;
         }
+        
+        script { display: none; }
     </style>
-    <link rel="manifest" href="/manifest.json"/>
-    <meta name="theme-color" content="#00ffaa"/>
-    <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(console.log);
+        }
+    </script>
 </head>
 <body>
-    <!-- NAV -->
     <nav>
         <div class="logo">
             <div class="logo-icon">🔒</div>
@@ -748,7 +581,6 @@
         <div class="nav-badge">Private Beta</div>
     </nav>
     
-    <!-- HERO -->
     <div class="hero">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -784,7 +616,6 @@
         </div>
     </div>
     
-    <!-- FEATURES -->
     <div class="features">
         <div class="section-label">Dlaczego VaultLink?</div>
         <div class="features-grid">
@@ -806,7 +637,6 @@
         </div>
     </div>
     
-    <!-- PROBLEM SECTION -->
     <div class="divider"></div>
     <div class="problem">
         <h2>Nie chcesz, żeby <em>Google, Notion czy menedżer linków</em> czytał Twoje notatki?</h2>
@@ -814,7 +644,6 @@
     </div>
     <div class="divider"></div>
     
-    <!-- MOCKUP -->
     <div class="mockup-section">
         <div class="mockup-window">
             <div class="mockup-bar">
@@ -861,7 +690,6 @@
         </div>
     </div>
     
-    <!-- CTA BOTTOM -->
     <div class="cta-bottom">
         <h2>Nie czekaj na wyciek.<br/>Przejmij kontrolę już dziś.</h2>
         <p>Dołącz do listy i uzyskaj wczesny dostęp do VaultLink.</p>
@@ -873,8 +701,6 @@
         </div>
     </div>
     
-    <!-- FOOTER -->
- 
     <footer>
         <span>© 2025 VaultLink — szyfrowanie klient-serwer, zero zaufania</span>
         <span>🔐 open-source · audytowalne</span>
@@ -883,22 +709,15 @@
     <div class="toast" id="toastMsg">✓ Dodano do listy oczekujących</div>
     
     <script>
-        // Konfiguracja Supabase
         const SUPABASE_URL = 'https://holxmnhiwtntcjcorave.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
-        
-        // Inicjalizacja klienta Supabase z unikalną nazwą (podkreślnik, aby uniknąć konfliktu)
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Konfiguracja EmailJS
         const EMAILJS_SERVICE_ID = 'service_fd1cyfh';
         const EMAILJS_TEMPLATE_ID = 'template_dgg3fbn';
         const EMAILJS_PUBLIC_KEY = 'b8INQFoKRQeN2hO6M';
-        
-        // Inicjalizacja EmailJS
         emailjs.init(EMAILJS_PUBLIC_KEY);
         
-        // Elementy DOM
         const emailInput = document.getElementById('waitlistEmail');
         const emailInputBottom = document.getElementById('waitlistEmailBottom');
         const joinBtn = document.getElementById('joinBtn');
@@ -910,26 +729,18 @@
         
         let isSending = false;
         
-        // Pobranie liczby zapisów
         async function fetchCount() {
             try {
-                const { count, error } = await _supabase
-                    .from('waitlist')
-                    .select('*', { count: 'exact', head: true });
-                if (!error && count !== null) {
-                    counterSpan.innerText = count;
-                } else {
-                    counterSpan.innerText = '0';
-                }
+                const { count, error } = await _supabase.from('waitlist').select('*', { count: 'exact', head: true });
+                counterSpan.innerText = (!error && count !== null) ? count : '0';
             } catch (err) {
                 console.warn('Nie udało się pobrać licznika', err);
                 counterSpan.innerText = '0';
             }
         }
         
-        // Główna funkcja zapisu (najpierw Supabase, potem EmailJS)
         async function addToWaitlist(email) {
-            // Resetowanie widoczności komunikatów na samym początku
+            // 🔑 KRYTYCZNA POPRAWKA: resetowanie komunikatów przy KAŻDEJ próbie
             errorMsgDiv.style.display = 'none';
             successMsgDiv.style.display = 'none';
             
@@ -946,31 +757,18 @@
             joinBtnBottom.disabled = true;
             
             try {
-                // Krok 1: Sprawdź czy email już istnieje
-                const { data: existing, error: checkError } = await _supabase
-                    .from('waitlist')
-                    .select('email')
-                    .eq('email', email)
-                    .maybeSingle();
+                const { data: existing } = await _supabase.from('waitlist').select('email').eq('email', email).maybeSingle();
                 
                 if (existing) {
                     errorMsgDiv.style.display = 'block';
                     errorMsgDiv.innerText = 'Ten email jest już na liście!';
                     setTimeout(() => { errorMsgDiv.style.display = 'none'; }, 3000);
-                    isSending = false;
-                    joinBtn.disabled = false;
-                    joinBtnBottom.disabled = false;
                     return false;
                 }
                 
-                // Krok 2: Zapisz do Supabase (tabela 'waitlist', kolumna 'email')
-                const { error: insertError } = await _supabase
-                    .from('waitlist')
-                    .insert([{ email: email, signed_up_at: new Date().toISOString() }]);
-                
+                const { error: insertError } = await _supabase.from('waitlist').insert([{ email: email, signed_up_at: new Date().toISOString() }]);
                 if (insertError) throw insertError;
                 
-                // Krok 3: Wyślij maila przez EmailJS
                 try {
                     await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
                         to_email: email,
@@ -981,23 +779,16 @@
                     console.warn('EmailJS błąd (ale zapisany w bazie):', emailError);
                 }
                 
-                // Krok 4: Odnotuj zdarzenie w Google Analytics
                 if (typeof gtag !== 'undefined') {
-                    gtag('event', 'sign_up', {
-                        'event_category': 'engagement',
-                        'event_label': 'waitlist_success'
-                    });
+                    gtag('event', 'sign_up', { 'event_category': 'engagement', 'event_label': 'waitlist_success' });
                 }
                 
-                // Sukces - pokaż komunikaty
                 successMsgDiv.style.display = 'flex';
                 if (emailInput) emailInput.value = '';
                 if (emailInputBottom) emailInputBottom.value = '';
                 
                 toastMsgDiv.classList.add('show');
                 setTimeout(() => toastMsgDiv.classList.remove('show'), 4000);
-                
-                // Odśwież licznik
                 await fetchCount();
                 return true;
                 
@@ -1014,36 +805,13 @@
             }
         }
         
-        // Event listenery z e.preventDefault() aby uniknąć odświeżania strony
-        joinBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            addToWaitlist(email);
-        });
+        joinBtn.addEventListener('click', (e) => { e.preventDefault(); addToWaitlist(emailInput.value.trim()); });
+        joinBtnBottom.addEventListener('click', (e) => { e.preventDefault(); addToWaitlist(emailInputBottom.value.trim()); });
         
-        joinBtnBottom.addEventListener('click', (e) => {
-            e.preventDefault();
-            const email = emailInputBottom.value.trim();
-            addToWaitlist(email);
-        });
+        const handleEnter = (e, inputElement) => { if (e.key === 'Enter') { e.preventDefault(); addToWaitlist(inputElement.value.trim()); } };
+        if (emailInput) emailInput.addEventListener('keypress', (e) => handleEnter(e, emailInput));
+        if (emailInputBottom) emailInputBottom.addEventListener('keypress', (e) => handleEnter(e, emailInputBottom));
         
-        // Obsługa klawisza Enter
-        const handleEnter = (e, inputElement) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const email = inputElement.value.trim();
-                addToWaitlist(email);
-            }
-        };
-        
-        if (emailInput) {
-            emailInput.addEventListener('keypress', (e) => handleEnter(e, emailInput));
-        }
-        if (emailInputBottom) {
-            emailInputBottom.addEventListener('keypress', (e) => handleEnter(e, emailInputBottom));
-        }
-        
-        // Załaduj licznik
         fetchCount();
     </script>
 </body>
