@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html>
 <html lang="pl">
 <head>
     <meta charset="UTF-8" />
@@ -734,11 +734,10 @@
             text-align: center;
         }
     </style>
-</head>
-<link rel="manifest" href="/manifest.json"/>
+    <link rel="manifest" href="/manifest.json"/>
     <meta name="theme-color" content="#00ffaa"/>
     <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js');</script>
-  </head>
+</head>
 <body>
     <!-- NAV -->
     <nav>
@@ -930,6 +929,10 @@
         
         // Główna funkcja zapisu (najpierw Supabase, potem EmailJS)
         async function addToWaitlist(email) {
+            // Resetowanie widoczności komunikatów na samym początku
+            errorMsgDiv.style.display = 'none';
+            successMsgDiv.style.display = 'none';
+            
             if (!email || !email.includes('@')) {
                 errorMsgDiv.style.display = 'block';
                 errorMsgDiv.innerText = 'Podaj poprawny adres email.';
