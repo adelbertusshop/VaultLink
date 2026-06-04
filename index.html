@@ -875,7 +875,137 @@
     </div>
     
     <!-- FOOTER -->
-  
+  'use client';
+
+import { useEffect, useState } from 'react';
+
+export default function PwaInstallSection() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isReadyToInstall, setIsReadyToInstall] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    // 1. Sprawdź czy już nie jest zainstalowane (standalone)
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+
+    // 2. Przechwyć natywne zdarzenie przeglądarki
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsReadyToInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    
+    // Pokaż systemowy prompt instalacji
+    deferredPrompt.prompt();
+    
+    // Czekaj na decyzję użytkownika
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsReadyToInstall(false);
+      setDeferredPrompt(null);
+    }
+  };
+
+  if (isInstalled) return null; // Jeśli już zainstalowane, nie śmiecimy ekranu
+
+  return (
+    <>
+      <div className="divider"></div>
+      <div style={{ position: 'relative', zIndex: 1, padding: '80px 24px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', color: '#00ffaa', marginBottom: '32px' }}>
+          // zainstaluj aplikację
+        </p>
+        <h2 style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, letterSpacing: '-2px', marginBottom: '16px', color: '#fff' }}>
+          Działa jak natywna aplikacja.<br />
+          <span style={{ color: '#00ffaa' }}>Na każdym telefonie.</span>
+        </h2>
+        <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '14px', color: '#5a6070', marginBottom: '48px', lineHeight: 1.7 }}>
+          Bez App Store. Bez Google Play. Bez opłat.<br />
+          Instalujesz w 3 sekundy.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '20px', textAlign: 'left' }}>
+          
+          {/* KARTA ANDROID / DESKTOP (DYNAMICZNA) */}
+          <div style={{ background: '#0d1017', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '28px', display: 'flex', flexDirection: 'column', justifyContent: 'between' }}>
+            <div>
+              <div style={{ fontSize: '28px', margin-bottom: '16px' }}>🤖</div>
+              <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '20px', color: '#fff' }}>Android & Chrome</div>
+              
+              {!isReadyToInstall ? (
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', color: '#5a6070', lineHeight: '1.6' }}>
+                  Aplikacja gotowa do pracy w tle. Jeśli przeglądarka nie wyświetliła komunikatu automatycznie, możesz dodać ją przez menu Chrome (Ustawienia → Dodaj do ekranu głównego).
+                </p>
+              ) : (
+                <p style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', color: '#e8eaf0', lineHeight: '1.6' }}>
+                  Kliknij poniższy przycisk, aby natychmiastowo zapisać VaultLink na swoim pulpicie.
+                </p>
+              )}
+            </div>
+
+            {isReadyToInstall && (
+              <button
+                onClick={handleInstallClick}
+                style={{
+                  marginTop: '28px',
+                  background: '#00ffaa',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '14px 24px',
+                  fontFamily: "'JetBrains Mono',monospace",
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              >
+                Dodaj do ekranu głównego
+              </button>
+            )}
+          </div>
+
+          {/* KARTA IPHONE (SAFARI) */}
+          <div style={{ background: '#0d1017', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '28px' }}>
+            <div style={{ fontSize: '28px', marginBottom: '16px' }}>🍎</div>
+            <div style={{ fontSize: '17px', fontWeight: 700, marginBottom: '20px', color: '#fff' }}>iPhone (Safari)</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,255,170,0.1)', border: '1px solid rgba(0,255,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: '#00ffaa', flexShrink: 0 }}>1</div>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', color: '#5a6070', lineHeight: '1.6' }}>Otwórz aplikację bezpośrednio w przeglądarce Safari</div>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,255,170,0.1)', border: '1px solid rgba(0,255,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: '#00ffaa', flexShrink: 0 }}>2</div>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', color: '#5a6070', lineHeight: '1.6' }}>Kliknij ikonę <strong style={{ color: '#e8eaf0' }}>📤 Udostępnij</strong> na dolnym pasku</div>
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0,255,170,0.1)', border: '1px solid rgba(0,255,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono',monospace", fontSize: '12px', color: '#00ffaa', flexShrink: 0 }}>3</div>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: '13px', color: '#5a6070', lineHeight: '1.6' }}>Znajdź na liście i wybierz <strong style={{ color: '#e8eaf0' }}>"Dodaj do ekranu początkowego"</strong></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
+}
     <footer>
         <span>© 2025 VaultLink — szyfrowanie klient-serwer, zero zaufania</span>
         <span>🔐 open-source · audytowalne</span>
