@@ -2,7 +2,7 @@
   "name": "VaultLink",
   "short_name": "VaultLink",
   "description": "Prywatna zaszyfrowana baza linków",
-  "start_url": "/app.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#080a0f",
   "theme_color": "#00ffaa",
