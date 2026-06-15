@@ -7,13 +7,17 @@
     <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
     
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-524QFQM84F');
-    </script>
+   <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Śledź ruch tylko na prawdziwej domenie (Vercel), odetnij localhost
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    gtag('config', 'G-524QFQM84F');
+  }
+</script>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
