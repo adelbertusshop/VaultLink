@@ -1,16 +1,17 @@
 const CACHE = 'vaultlink-v2';
 const ASSETS = [
-  '/index.html',
-  '/login.html',
-  '/app.html',
-  '/pricing.html',
-  '/manifest.json',
-  '/logo.png'
+  'index.html',
+  'login.html',
+  'app.html',
+  'pricing.html',
+  'manifest.json',
+  'logo.png'
 ];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS))
+    caches.open(CACHE)
+      .then(c => c.addAll(ASSETS))
       .then(() => self.skipWaiting())
   );
 });
@@ -24,6 +25,7 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
- e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
