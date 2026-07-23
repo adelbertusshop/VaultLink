@@ -139,6 +139,41 @@
             background: rgba(0,255,170,0.05);
         }
         
+
+        /* LANG SWITCHER */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .lang-btn {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 4px 9px;
+            border-radius: 6px;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .lang-btn:hover {
+            color: var(--accent);
+            border-color: var(--border-glow);
+            background: rgba(0,255,170,0.05);
+        }
+        .lang-btn.active {
+            color: var(--accent);
+            border-color: var(--border-glow);
+            background: rgba(0,255,170,0.08);
+        }
+        .lang-sep {
+            color: var(--border);
+            font-size: 12px;
+            pointer-events: none;
+        }
+
         /* HERO */
         .hero {
             position: relative;
@@ -752,6 +787,17 @@
             <div class="logo-icon">🔒</div>
             <span>VaultLink</span>
         </div>
+        <div class="lang-switcher">
+            <button class="lang-btn active" onclick="setLang('pl')">PL</button>
+            <span class="lang-sep">|</span>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+            <span class="lang-sep">|</span>
+            <button class="lang-btn" onclick="setLang('de')">DE</button>
+            <span class="lang-sep">|</span>
+            <button class="lang-btn" onclick="setLang('it')">IT</button>
+            <span class="lang-sep">|</span>
+            <button class="lang-btn" onclick="setLang('es')">ES</button>
+        </div>
         <div class="nav-badge">Private Beta</div>
     </nav>
     
@@ -1052,5 +1098,225 @@
         // Załaduj licznik
         fetchCount();
     </script>
+
+    <script>
+    // ===== TŁUMACZ STRONY (Google Translate nieoficjalny endpoint) =====
+    const TRANSLATIONS = {
+        pl: {
+            tag:         'Zero access. Zero trust.',
+            line1:       'Twoje linki.',
+            line2:       'Zaszyfrowane.',
+            line3:       'Tylko Ty masz klucz.',
+            sub:         'Bezpieczna baza linków i notatek z szyfrowaniem end-to-end. Ani my, ani nikt inny nie ma dostępu do Twoich danych.',
+            emailPh:     'twój@email.com',
+            joinBtn:     'Dołącz do listy →',
+            joinBtnB:    'Dołącz →',
+            meta1:       '🔐 szyfrowanie lokalnie',
+            meta2:       '⚡ zero rejestracji',
+            earlyLabel:  '👥 wczesny dostęp:',
+            earlyAfter:  'osób gotowych',
+            successH:    'Jesteś na liście!',
+            successSub:  'Otrzymasz link do VaultLink gdy wystartujemy.',
+            secTitle:    'Dlaczego VaultLink?',
+            f1t:         'Klient-szyfruje',
+            f1d:         'Twoje dane są szyfrowane w przeglądarce zanim trafią na serwer. My widzimy tylko zaszyfrowane klocki.',
+            f2t:         'Tylko Twój klucz',
+            f2d:         'Bez klucza — brak dostępu. Nawet my nie go nie mamy. Ty nim zarządzasz lokalnie.',
+            f3t:         'Zero loginów',
+            f3d:         'Brak haseł, baz użytkowników i śledzenia. Twoja tożsamość to tylko klucz szyfrowania.',
+            probH:       'Nie chcesz, żeby <em>Google, Notion czy menedżer linków</em> czytał Twoje notatki?',
+            probP:       'Większość "prywatnych" rozwiązań ma dostęp do Twoich danych. VaultLink nie może — bo nie ma klucza. Szyfrujemy wszystko lokalnie, a serwer służy tylko jako przechowalnia zaszyfrowanego chaosu.',
+            ctaH:        'Nie czekaj na wyciek.<br/>Przejmij kontrolę już dziś.',
+            ctaP:        'Dołącz do listy i uzyskaj wczesny dostęp do VaultLink.',
+            footer1:     '© 2025 VaultLink — szyfrowanie klient-serwer, zero zaufania',
+        },
+        en: {
+            tag:         'Zero access. Zero trust.',
+            line1:       'Your links.',
+            line2:       'Encrypted.',
+            line3:       'Only you hold the key.',
+            sub:         'A secure link and note vault with end-to-end encryption. Neither we nor anyone else can access your data.',
+            emailPh:     'your@email.com',
+            joinBtn:     'Join the list →',
+            joinBtnB:    'Join →',
+            meta1:       '🔐 local encryption',
+            meta2:       '⚡ no registration',
+            earlyLabel:  '👥 early access:',
+            earlyAfter:  'people ready',
+            successH:    'You're on the list!',
+            successSub:  'You'll receive a VaultLink invite when we launch.',
+            secTitle:    'Why VaultLink?',
+            f1t:         'Client-side encryption',
+            f1d:         'Your data is encrypted in the browser before it reaches the server. We only see encrypted blocks.',
+            f2t:         'Your key only',
+            f2d:         'No key — no access. Even we don't have it. You manage it locally.',
+            f3t:         'Zero logins',
+            f3d:         'No passwords, no user databases, no tracking. Your identity is just the encryption key.',
+            probH:       'Don't want <em>Google, Notion or a link manager</em> reading your notes?',
+            probP:       'Most "private" solutions have access to your data. VaultLink can't — because it has no key. We encrypt everything locally; the server is just a storage for encrypted chaos.',
+            ctaH:        'Don't wait for a data breach.<br/>Take control today.',
+            ctaP:        'Join the waitlist and get early access to VaultLink.',
+            footer1:     '© 2025 VaultLink — client-server encryption, zero trust',
+        },
+        de: {
+            tag:         'Kein Zugriff. Kein Vertrauen.',
+            line1:       'Deine Links.',
+            line2:       'Verschlüsselt.',
+            line3:       'Nur du hast den Schlüssel.',
+            sub:         'Eine sichere Link- und Notizdatenbank mit Ende-zu-Ende-Verschlüsselung. Weder wir noch sonst jemand hat Zugriff auf deine Daten.',
+            emailPh:     'deine@email.com',
+            joinBtn:     'Zur Liste →',
+            joinBtnB:    'Beitreten →',
+            meta1:       '🔐 lokale Verschlüsselung',
+            meta2:       '⚡ keine Registrierung',
+            earlyLabel:  '👥 Früher Zugang:',
+            earlyAfter:  'Personen bereit',
+            successH:    'Du bist auf der Liste!',
+            successSub:  'Du erhältst einen VaultLink-Einladungslink beim Start.',
+            secTitle:    'Warum VaultLink?',
+            f1t:         'Client-Verschlüsselung',
+            f1d:         'Deine Daten werden im Browser verschlüsselt, bevor sie den Server erreichen. Wir sehen nur verschlüsselte Blöcke.',
+            f2t:         'Nur dein Schlüssel',
+            f2d:         'Kein Schlüssel — kein Zugriff. Wir haben ihn nicht mal. Du verwaltest ihn lokal.',
+            f3t:         'Null Logins',
+            f3d:         'Keine Passwörter, keine Benutzerdatenbanken, kein Tracking. Deine Identität ist nur der Verschlüsselungsschlüssel.',
+            probH:       'Willst du nicht, dass <em>Google, Notion oder ein Link-Manager</em> deine Notizen liest?',
+            probP:       'Die meisten "privaten" Lösungen haben Zugriff auf deine Daten. VaultLink kann es nicht — weil es keinen Schlüssel hat. Wir verschlüsseln alles lokal.',
+            ctaH:        'Warte nicht auf einen Datenleck.<br/>Übernimm noch heute die Kontrolle.',
+            ctaP:        'Tritt der Warteliste bei und erhalte frühen Zugang zu VaultLink.',
+            footer1:     '© 2025 VaultLink — Client-Server-Verschlüsselung, kein Vertrauen',
+        },
+        it: {
+            tag:         'Zero accesso. Zero fiducia.',
+            line1:       'I tuoi link.',
+            line2:       'Cifrati.',
+            line3:       'Solo tu hai la chiave.',
+            sub:         'Un archivio sicuro di link e note con crittografia end-to-end. Né noi né nessun altro può accedere ai tuoi dati.',
+            emailPh:     'tua@email.com',
+            joinBtn:     'Unisciti alla lista →',
+            joinBtnB:    'Unisciti →',
+            meta1:       '🔐 crittografia locale',
+            meta2:       '⚡ zero registrazioni',
+            earlyLabel:  '👥 accesso anticipato:',
+            earlyAfter:  'persone pronte',
+            successH:    'Sei nella lista!',
+            successSub:  'Riceverai un invito VaultLink al lancio.',
+            secTitle:    'Perché VaultLink?',
+            f1t:         'Crittografia lato client',
+            f1d:         'I tuoi dati vengono cifrati nel browser prima di raggiungere il server. Noi vediamo solo blocchi cifrati.',
+            f2t:         'Solo la tua chiave',
+            f2d:         'Senza chiave — nessun accesso. Nemmeno noi ce l'abbiamo. La gestisci localmente.',
+            f3t:         'Zero login',
+            f3d:         'Niente password, niente database utenti, niente tracciamento. La tua identità è solo la chiave di crittografia.',
+            probH:       'Non vuoi che <em>Google, Notion o un gestore di link</em> legga le tue note?',
+            probP:       'La maggior parte delle soluzioni "private" ha accesso ai tuoi dati. VaultLink non può — perché non ha la chiave. Cifriamo tutto localmente.',
+            ctaH:        'Non aspettare una violazione dei dati.<br/>Prendi il controllo oggi.',
+            ctaP:        'Unisciti alla lista d'attesa e ottieni l'accesso anticipato a VaultLink.',
+            footer1:     '© 2025 VaultLink — crittografia client-server, zero fiducia',
+        },
+        es: {
+            tag:         'Cero acceso. Cero confianza.',
+            line1:       'Tus enlaces.',
+            line2:       'Cifrados.',
+            line3:       'Solo tú tienes la clave.',
+            sub:         'Una base segura de enlaces y notas con cifrado de extremo a extremo. Ni nosotros ni nadie más tiene acceso a tus datos.',
+            emailPh:     'tu@email.com',
+            joinBtn:     'Únete a la lista →',
+            joinBtnB:    'Unirse →',
+            meta1:       '🔐 cifrado local',
+            meta2:       '⚡ sin registro',
+            earlyLabel:  '👥 acceso anticipado:',
+            earlyAfter:  'personas listas',
+            successH:    '¡Estás en la lista!',
+            successSub:  'Recibirás una invitación de VaultLink cuando lancemos.',
+            secTitle:    '¿Por qué VaultLink?',
+            f1t:         'Cifrado en el cliente',
+            f1d:         'Tus datos se cifran en el navegador antes de llegar al servidor. Nosotros solo vemos bloques cifrados.',
+            f2t:         'Solo tu clave',
+            f2d:         'Sin clave — sin acceso. Ni siquiera nosotros la tenemos. La gestionas localmente.',
+            f3t:         'Cero inicios de sesión',
+            f3d:         'Sin contraseñas, sin bases de datos de usuarios, sin seguimiento. Tu identidad es solo la clave de cifrado.',
+            probH:       '¿No quieres que <em>Google, Notion o un gestor de enlaces</em> lea tus notas?',
+            probP:       'La mayoría de las soluciones "privadas" tienen acceso a tus datos. VaultLink no puede — porque no tiene la clave. Ciframos todo localmente.',
+            ctaH:        'No esperes una filtración.<br/>Toma el control hoy.',
+            ctaP:        'Únete a la lista de espera y obtén acceso anticipado a VaultLink.',
+            footer1:     '© 2025 VaultLink — cifrado cliente-servidor, cero confianza',
+        }
+    };
+
+    let currentLang = 'pl';
+
+    function setLang(lang) {
+        currentLang = lang;
+        const t = TRANSLATIONS[lang];
+        if (!t) return;
+
+        // Przyciski nav
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === lang);
+        });
+
+        // Teksty
+        const q = id => document.getElementById(id);
+        const qs = sel => document.querySelector(sel);
+
+        if (qs('.hero-tag'))       qs('.hero-tag').textContent        = t.tag;
+        if (qs('.line1'))          qs('.line1').textContent           = t.line1;
+        if (qs('.line2'))          qs('.line2').textContent           = t.line2;
+        if (qs('.line3'))          qs('.line3').textContent           = t.line3;
+        if (qs('.hero-sub'))       qs('.hero-sub').textContent        = t.sub;
+        if (qs('.section-label'))  qs('.section-label').textContent   = t.secTitle;
+
+        // Placeholdery emaili
+        document.querySelectorAll('input[type="email"]').forEach(el => el.placeholder = t.emailPh);
+
+        // Przyciski dołącz
+        if (q('joinBtn'))       q('joinBtn').textContent       = t.joinBtn;
+        if (q('joinBtnBottom')) q('joinBtnBottom').textContent = t.joinBtnB;
+
+        // Meta tagi pod formularzem
+        const metas = document.querySelectorAll('.waitlist-meta span');
+        if (metas[0]) metas[0].textContent = t.meta1;
+        if (metas[1]) metas[1].textContent = t.meta2;
+
+        // Licznik
+        const counterBoxSpans = document.querySelectorAll('.counter-box span');
+        if (counterBoxSpans[0]) counterBoxSpans[0].textContent = t.earlyLabel;
+        if (counterBoxSpans[2]) counterBoxSpans[2].textContent = t.earlyAfter;
+
+        // Sukces
+        const successP = document.querySelector('.success-msg p');
+        const successSm = document.querySelector('.success-msg small');
+        if (successP)  successP.textContent  = t.successH;
+        if (successSm) successSm.textContent = t.successSub;
+
+        // Features
+        const fTitles = document.querySelectorAll('.feat-title');
+        const fDescs  = document.querySelectorAll('.feat-desc');
+        if (fTitles[0]) fTitles[0].textContent = t.f1t;
+        if (fDescs[0])  fDescs[0].textContent  = t.f1d;
+        if (fTitles[1]) fTitles[1].textContent = t.f2t;
+        if (fDescs[1])  fDescs[1].textContent  = t.f2d;
+        if (fTitles[2]) fTitles[2].textContent = t.f3t;
+        if (fDescs[2])  fDescs[2].textContent  = t.f3d;
+
+        // Problem section
+        const probH = document.querySelector('.problem h2');
+        const probP = document.querySelector('.problem p');
+        if (probH) probH.innerHTML = t.probH;
+        if (probP) probP.textContent = t.probP;
+
+        // CTA bottom
+        const ctaH = document.querySelector('.cta-bottom h2');
+        const ctaP = document.querySelector('.cta-bottom p');
+        if (ctaH) ctaH.innerHTML = t.ctaH;
+        if (ctaP) ctaP.textContent = t.ctaP;
+
+        // Footer
+        const footerSpans = document.querySelectorAll('footer span');
+        if (footerSpans[0]) footerSpans[0].textContent = t.footer1;
+    }
+    </script>
+
 </body>
 </html>
