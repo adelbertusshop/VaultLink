@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -150,7 +149,7 @@
         .lang-btn {
             font-family: var(--font-mono);
             font-size: 11px;
-            color: var(--text-muted);
+            color: var(--muted);
             background: transparent;
             border: 1px solid transparent;
             padding: 4px 9px;
@@ -1101,7 +1100,7 @@
     </script>
 
     <script>
-    // ===== TŁUMACZ STRONY (Google Translate nieoficjalny endpoint) =====
+    // ===== TŁUMACZ STRONY =====
     const TRANSLATIONS = {
         pl: {
             tag:         'Zero access. Zero trust.',
@@ -1130,6 +1129,18 @@
             ctaH:        'Nie czekaj na wyciek.<br/>Przejmij kontrolę już dziś.',
             ctaP:        'Dołącz do listy i uzyskaj wczesny dostęp do VaultLink.',
             footer1:     '© 2025 VaultLink — szyfrowanie klient-serwer, zero zaufania',
+            footer2:     '🔐 open-source · audytowalne',
+            mockSearch:  'szukaj w zaszyfrowanych...',
+            mockTitle1:  'Design system 2025',
+            mockUrl1:    'figma.com/file/...',
+            mockTag1:    'praca',
+            mockTitle2:  'Jak działa szyfrowanie? (film)',
+            mockUrl2:    'youtube.com/watch...',
+            mockTag2:    'nauka',
+            mockTitle3:  'budżet domowy — klucz główny',
+            mockUrl3:    'hasło: ***********',
+            mockTag3:    'prywatne',
+            navBadge:    'Private Beta'
         },
         en: {
             tag:         'Zero access. Zero trust.',
@@ -1144,8 +1155,8 @@
             meta2:       '⚡ no registration',
             earlyLabel:  '👥 early access:',
             earlyAfter:  'people ready',
-            successH:    'You're on the list!',
-            successSub:  'You'll receive a VaultLink invite when we launch.',
+            successH:    "You're on the list!",
+            successSub:  "You'll receive a VaultLink invite when we launch.",
             secTitle:    'Why VaultLink?',
             f1t:         'Client-side encryption',
             f1d:         'Your data is encrypted in the browser before it reaches the server. We only see encrypted blocks.',
@@ -1154,10 +1165,22 @@
             f3t:         'Zero logins',
             f3d:         'No passwords, no user databases, no tracking. Your identity is just the encryption key.',
             probH:       'Don\'t want <em>Google, Notion or a link manager</em> reading your notes?',
-            probP:       'Most "private" solutions have access to your data. VaultLink can't — because it has no key. We encrypt everything locally; the server is just a storage for encrypted chaos.',
+            probP:       'Most "private" solutions have access to your data. VaultLink can\'t — because it has no key. We encrypt everything locally; the server is just a storage for encrypted chaos.',
             ctaH:        'Don\'t wait for a data breach.<br/>Take control today.',
             ctaP:        'Join the waitlist and get early access to VaultLink.',
             footer1:     '© 2025 VaultLink — client-server encryption, zero trust',
+            footer2:     '🔐 open-source · auditable',
+            mockSearch:  'search encrypted...',
+            mockTitle1:  'Design system 2025',
+            mockUrl1:    'figma.com/file/...',
+            mockTag1:    'work',
+            mockTitle2:  'How encryption works? (video)',
+            mockUrl2:    'youtube.com/watch...',
+            mockTag2:    'learning',
+            mockTitle3:  'home budget — master key',
+            mockUrl3:    'password: ***********',
+            mockTag3:    'private',
+            navBadge:    'Private Beta'
         },
         de: {
             tag:         'Kein Zugriff. Kein Vertrauen.',
@@ -1186,6 +1209,18 @@
             ctaH:        'Warte nicht auf einen Datenleck.<br/>Übernimm noch heute die Kontrolle.',
             ctaP:        'Tritt der Warteliste bei und erhalte frühen Zugang zu VaultLink.',
             footer1:     '© 2025 VaultLink — Client-Server-Verschlüsselung, kein Vertrauen',
+            footer2:     '🔐 Open-Source · überprüfbar',
+            mockSearch:  'in verschlüsselten suchen...',
+            mockTitle1:  'Designsystem 2025',
+            mockUrl1:    'figma.com/file/...',
+            mockTag1:    'Arbeit',
+            mockTitle2:  'Wie funktioniert Verschlüsselung? (Video)',
+            mockUrl2:    'youtube.com/watch...',
+            mockTag2:    'Lernen',
+            mockTitle3:  'Haushaltsbudget — Hauptschlüssel',
+            mockUrl3:    'Passwort: ***********',
+            mockTag3:    'privat',
+            navBadge:    'Private Beta'
         },
         it: {
             tag:         'Zero accesso. Zero fiducia.',
@@ -1214,6 +1249,18 @@
             ctaH:        'Non aspettare una violazione dei dati.<br/>Prendi il controllo oggi.',
             ctaP:        'Unisciti alla lista d\'attesa e ottieni l\'accesso anticipato a VaultLink.',
             footer1:     '© 2025 VaultLink — crittografia client-server, zero fiducia',
+            footer2:     '🔐 open-source · verificabile',
+            mockSearch:  'cerca nei cifrati...',
+            mockTitle1:  'Sistema di design 2025',
+            mockUrl1:    'figma.com/file/...',
+            mockTag1:    'lavoro',
+            mockTitle2:  'Come funziona la crittografia? (video)',
+            mockUrl2:    'youtube.com/watch...',
+            mockTag2:    'studio',
+            mockTitle3:  'budget domestico — chiave principale',
+            mockUrl3:    'password: ***********',
+            mockTag3:    'privato',
+            navBadge:    'Private Beta'
         },
         es: {
             tag:         'Cero acceso. Cero confianza.',
@@ -1242,6 +1289,18 @@
             ctaH:        'No esperes una filtración.<br/>Toma el control hoy.',
             ctaP:        'Únete a la lista de espera y obtén acceso anticipado a VaultLink.',
             footer1:     '© 2025 VaultLink — cifrado cliente-servidor, cero confianza',
+            footer2:     '🔐 open-source · auditable',
+            mockSearch:  'buscar en cifrados...',
+            mockTitle1:  'Sistema de diseño 2025',
+            mockUrl1:    'figma.com/file/...',
+            mockTag1:    'trabajo',
+            mockTitle2:  '¿Cómo funciona el cifrado? (video)',
+            mockUrl2:    'youtube.com/watch...',
+            mockTag2:    'aprendizaje',
+            mockTitle3:  'presupuesto familiar — clave maestra',
+            mockUrl3:    'contraseña: ***********',
+            mockTag3:    'privado',
+            navBadge:    'Private Beta'
         }
     };
 
@@ -1317,8 +1376,30 @@
         // Footer
         const footerSpans = document.querySelectorAll('footer span');
         if (footerSpans[0]) footerSpans[0].textContent = t.footer1;
+        if (footerSpans[1]) footerSpans[1].textContent = t.footer2;
+
+        // Nav badge
+        const navBadge = document.querySelector('.nav-badge');
+        if (navBadge) navBadge.textContent = t.navBadge;
+
+        // Mockup - search placeholder
+        const mockSearch = document.querySelector('.mock-search span:last-child');
+        if (mockSearch) mockSearch.textContent = t.mockSearch;
+
+        // Mockup - linki
+        const mockTitles = document.querySelectorAll('.mock-link-title');
+        const mockUrls = document.querySelectorAll('.mock-link-url');
+        const mockTags = document.querySelectorAll('.mock-tag');
+        if (mockTitles[0]) mockTitles[0].textContent = t.mockTitle1;
+        if (mockUrls[0]) mockUrls[0].textContent = t.mockUrl1;
+        if (mockTags[0]) mockTags[0].textContent = t.mockTag1;
+        if (mockTitles[1]) mockTitles[1].textContent = t.mockTitle2;
+        if (mockUrls[1]) mockUrls[1].textContent = t.mockUrl2;
+        if (mockTags[1]) mockTags[1].textContent = t.mockTag2;
+        if (mockTitles[2]) mockTitles[2].textContent = t.mockTitle3;
+        if (mockUrls[2]) mockUrls[2].textContent = t.mockUrl3;
+        if (mockTags[2]) mockTags[2].textContent = t.mockTag3;
     }
     </script>
-
 </body>
 </html>
