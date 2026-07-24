@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -1246,10 +1247,11 @@
 
     let currentLang = 'pl';
 
-    function setLang(lang) {
+    window.setLang = function(lang) {
         currentLang = lang;
         const t = TRANSLATIONS[lang];
-        if (!t) return;
+        if (!t) { console.error("Brak tłumaczenia dla:", lang); return; }
+        console.log("Zmieniam język na:", lang);
 
         // Przyciski nav
         document.querySelectorAll('.lang-btn').forEach(btn => {
