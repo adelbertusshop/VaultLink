@@ -135,9 +135,9 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header"><div class="modal-title" id="modalTitleText">Nowy link</div><button class="btn-close" id="btnClose">✕</button></div>
-    <div class="form-group"><label class="form-label">URL *</label><input class="form-input" type="url" id="inputUrl" placeholder="https://..."/></div>
-    <div class="form-group"><label class="form-label">Tytuł *</label><input class="form-input" type="text" id="inputTitle" placeholder="Nazwa strony"/></div>
-    <div class="form-group"><label class="form-label">Notatka</label><input class="form-input" type="text" id="inputNote" placeholder="Opcjonalny opis..."/></div>
+    <div class="form-group"><label class="form-label">URL *</label><input class="form-input" type="url" id="inputUrl" placeholder="https://..." maxlength="2048"/></div>
+    <div class="form-group"><label class="form-label">Tytuł *</label><input class="form-input" type="text" id="inputTitle" placeholder="Nazwa strony" maxlength="100"/></div>
+    <div class="form-group"><label class="form-label">Notatka</label><input class="form-input" type="text" id="inputNote" placeholder="Opcjonalny opis..." maxlength="300"/></div>
     <div class="form-group"><label class="form-label">Tag</label><select class="form-input" id="inputTag"><option value="inne">inne</option><option value="praca">praca</option><option value="dev">dev</option><option value="finanse">finanse</option><option value="prywatne">prywatne</option></select></div>
     <button class="btn-save" id="btnSave">Zapisz link</button>
   </div>
