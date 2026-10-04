@@ -2,6 +2,7 @@
 // Plaintext vault content never needs to be sent to Supabase.
 const VAULT_CRYPTO_VERSION = 1;
 const VAULT_KDF_ITERATIONS = 600000;
+const VAULT_MIN_PASSPHRASE_LENGTH = 12;
 
 function bytesToBase64(bytes) {
   let binary = '';
@@ -25,7 +26,7 @@ function randomBase64(byteLength) {
 }
 
 async function deriveVaultKey(passphrase, saltBase64, iterations = VAULT_KDF_ITERATIONS) {
-  if (!passphrase || passphrase.length < 12) {
+  if (!passphrase || passphrase.length < VAULT_MIN_PASSPHRASE_LENGTH) {
     throw new Error('Hasło sejfu musi mieć co najmniej 12 znaków.');
   }
   const material = await crypto.subtle.importKey(
