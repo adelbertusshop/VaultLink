@@ -315,7 +315,8 @@
     allLinks=allLinks.filter(l=>l.id!==id);
     renderLinks();updateLimitBar();showToast('🗑️ Usunięto');
   }
-  async function logout(){await _supabase.auth.signOut();window.location.href='/login.html';}
+  async function logout(){vaultKey=null;currentUser=null;allLinks=[];await _supabase.auth.signOut();window.location.href='/login.html';}
+  window.addEventListener('pagehide',()=>{vaultKey=null;currentUser=null;allLinks=[];});
   chips.forEach(chip=>{chip.addEventListener('click',()=>{chips.forEach(c=>c.classList.remove('active'));chip.classList.add('active');currentTag=chip.dataset.tag;renderLinks();});});
   btnLogout.addEventListener('click',logout);
   btnAdd.addEventListener('click',()=>openModal());
