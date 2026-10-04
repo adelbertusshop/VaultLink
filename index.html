@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>VaultLink — Twoje linki. Zaszyfrowane. Tylko Twoje.</title>
-    <meta name="description" content="Prywatna, zaszyfrowana baza linków i notatek. Zero zaufania do serwerów. Tylko Ty masz klucz."/>
+    <meta name="description" content="Prywatna baza linków i notatek z szyfrowaniem po stronie przeglądarki."/>
     
     <!-- Google Analytics -->
    <script async src="https://www.googletagmanager.com/gtag/js?id=G-524QFQM84F"></script>
@@ -806,13 +806,13 @@
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         
-        <div class="hero-tag">Zero access. Zero trust.</div>
+        <div class="hero-tag">Prywatny sejf w przeglądarce</div>
         <h1>
             <span class="line1">Twoje linki.</span>
             <span class="line2">Zaszyfrowane.</span>
-            <span class="line3">Tylko Ty masz klucz.</span>
+            <span class="line3">Klucz do sejfu jest wyprowadzany lokalnie w Twojej przeglądarce.</span>
         </h1>
-        <div class="hero-sub">Bezpieczna baza linków i notatek z szyfrowaniem end-to-end. Ani my, ani nikt inny nie ma dostępu do Twoich danych.</div>
+        <div class="hero-sub">Baza linków i notatek, w której zawartość sejfu jest szyfrowana w Twojej przeglądarce przed zapisaniem w bazie.</div>
         
         <div class="waitlist-box">
             <div class="input-row">
@@ -820,7 +820,7 @@
                 <button class="btn-join" id="joinBtn">Dołącz do listy →</button>
             </div>
             <div class="waitlist-meta">
-                <span>🔐 szyfrowanie lokalnie</span>
+                <span>🔐 szyfrowanie po stronie przeglądarki</span>
                 <span>⚡ zero rejestracji</span>
             </div>
             <div class="counter-box">
@@ -1103,11 +1103,11 @@
     // ===== TŁUMACZ STRONY =====
     const TRANSLATIONS = {
         pl: {
-            tag:         'Zero access. Zero trust.',
+            tag:         'Prywatny sejf w przeglądarce',
             line1:       'Twoje linki.',
             line2:       'Zaszyfrowane.',
-            line3:       'Tylko Ty masz klucz.',
-            sub:         'Bezpieczna baza linków i notatek z szyfrowaniem end-to-end. Ani my, ani nikt inny nie ma dostępu do Twoich danych.',
+            line3:       'Klucz do sejfu jest wyprowadzany lokalnie w Twojej przeglądarce.',
+            sub:         'Baza linków i notatek, której zawartość sejfu jest szyfrowana w Twojej przeglądarce przed zapisaniem w bazie.',
             emailPh:     'twój@email.com',
             joinBtn:     'Dołącz do listy →',
             joinBtnB:    'Dołącz →',
@@ -1143,11 +1143,11 @@
             navBadge:    'Private Beta'
         },
         en: {
-            tag:         'Zero access. Zero trust.',
+            tag:         'Prywatny sejf w przeglądarce',
             line1:       'Your links.',
             line2:       'Encrypted.',
             line3:       'Only you hold the key.',
-            sub:         'A secure link and note vault with end-to-end encryption. Neither we nor anyone else can access your data.',
+            sub:         'A link and note vault where vault content is encrypted in your browser before it is stored.',
             emailPh:     'your@email.com',
             joinBtn:     'Join the list →',
             joinBtnB:    'Join →',
@@ -1168,7 +1168,7 @@
             probP:       'Most "private" solutions have access to your data. VaultLink can\'t — because it has no key. We encrypt everything locally; the server is just a storage for encrypted chaos.',
             ctaH:        'Don\'t wait for a data breach.<br/>Take control today.',
             ctaP:        'Join the waitlist and get early access to VaultLink.',
-            footer1:     '© 2025 VaultLink — client-server encryption, zero trust',
+            footer1:     '© 2025 VaultLink — szyfrowanie po stronie przeglądarki',
             footer2:     '🔐 open-source · auditable',
             mockSearch:  'search encrypted...',
             mockTitle1:  'Design system 2025',
@@ -1223,11 +1223,11 @@
             navBadge:    'Private Beta'
         },
         it: {
-            tag:         'Zero accesso. Zero fiducia.',
+            tag:         'Archivio privato nel browser',
             line1:       'I tuoi link.',
             line2:       'Cifrati.',
             line3:       'Solo tu hai la chiave.',
-            sub:         'Un archivio sicuro di link e note con crittografia end-to-end. Né noi né nessun altro può accedere ai tuoi dati.',
+            sub:         'Link e note del vault vengono cifrati nel browser prima del salvataggio.',
             emailPh:     'tua@email.com',
             joinBtn:     'Unisciti alla lista →',
             joinBtnB:    'Unisciti →',
