@@ -80,7 +80,15 @@ async function decryptVaultItem(key, row, userId) {
 }
 
 function validateVaultUrl(value) {
-  const parsed = new URL(value);
+  if (typeof value !== 'string') throw new Error('Nieprawidłowy adres URL.');
+  const input = value.trim();
+  if (!input || input.length > 2048) throw new Error('Adres URL jest nieprawidłowy lub za długi.');
+  let parsed;
+  try {
+    parsed = new URL(input);
+  } catch {
+    throw new Error('Podaj prawidłowy adres URL.');
+  }
   if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
     throw new Error('Dozwolone są tylko adresy http:// i https://.');
   }
