@@ -218,18 +218,69 @@
   function escHtml(str){if(!str)return'';return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   function renderLinks(){
     const filtered=getFiltered();
-    linksGrid.innerHTML='';
+    linksGrid.replaceChildren();
     if(filtered.length===0){emptyState.style.display='block';return;}
     emptyState.style.display='none';
     filtered.forEach((link,i)=>{
       const card=document.createElement('div');
       card.className='link-card';
-      card.style.animationDelay=`${i*40}ms`;
-      const tag=link.tag||'inne';
-      const icon=tagIcons[tag]||'🔗';
-      card.innerHTML=`<div class="link-favicon">${icon}</div><div class="link-body"><div class="link-title">${escHtml(link.title)}</div><div class="link-url"><a href="${escHtml(link.url)}" target="_blank" rel="noopener">${escHtml(link.url)}</a></div><div class="link-meta"><span class="tag-badge tag-${tag}">#${tag}</span></div>${link.note?`<div class="link-note">📝 ${escHtml(link.note)}</div>`:''}</div><div class="link-actions"><button class="btn-icon edit" data-id="${link.id}">✏️</button><button class="btn-icon delete" data-id="${link.id}">🗑️</button></div>`;
-      card.querySelector('.edit').addEventListener('click',()=>openModal(link));
-      card.querySelector('.delete').addEventListener('click',()=>deleteLink(link.id));
+      card.style.animationDelay=(i*40)+'ms';
+
+      const favicon=document.createElement('div');
+      favicon.className='link-favicon';
+      favicon.textContent=tagIcons[link.tag||'inne']||'🔗';
+
+      const body=document.createElement('div');
+      body.className='link-body';
+
+      const title=document.createElement('div');
+      title.className='link-title';
+      title.textContent=String(link.title||'');
+
+      const urlWrap=document.createElement('div');
+      urlWrap.className='link-url';
+      const safeUrl=validateVaultUrl(link.url);
+      const urlLink=document.createElement('a');
+      urlLink.href=safeUrl;
+      urlLink.target='_blank';
+      urlLink.rel='noopener noreferrer';
+      urlLink.textContent=safeUrl;
+      urlWrap.appendChild(urlLink);
+
+      const meta=document.createElement('div');
+      meta.className='link-meta';
+      const tag=document.createElement('span');
+      const safeTag=['praca','dev','finanse','prywatne','inne'].includes(link.tag)?link.tag:'inne';
+      tag.className='tag-badge tag-'+safeTag;
+      tag.textContent='#'+safeTag;
+      meta.appendChild(tag);
+
+      body.append(title,urlWrap,meta);
+
+      if(link.note){
+        const note=document.createElement('div');
+        note.className='link-note';
+        note.textContent='📝 '+String(link.note);
+        body.appendChild(note);
+      }
+
+      const actions=document.createElement('div');
+      actions.className='link-actions';
+
+      const edit=document.createElement('button');
+      edit.className='btn-icon edit';
+      edit.type='button';
+      edit.textContent='✏️';
+      edit.addEventListener('click',()=>openModal(link));
+
+      const del=document.createElement('button');
+      del.className='btn-icon delete';
+      del.type='button';
+      del.textContent='🗑️';
+      del.addEventListener('click',()=>deleteLink(link.id));
+
+      actions.append(edit,del);
+      card.append(favicon,body,actions);
       linksGrid.appendChild(card);
     });
   }
