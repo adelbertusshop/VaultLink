@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/crypto.js"></script>
   <style>
     :root{--bg:#080a0f;--surface:#0d1017;--surface2:#131720;--border:rgba(255,255,255,0.06);--border-glow:rgba(0,255,170,0.2);--accent:#00ffaa;--accent2:#00aaff;--danger:#ff3b5c;--text:#e8eaf0;--muted:#5a6070;--font:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -157,7 +158,7 @@
   const SUPABASE_ANON_KEY='sb_publishable_M65K6nEKeX6-o9i8cadlDg_pkDxW39t';
   const FREE_LIMIT=10;
   const _supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-  let currentUser=null,allLinks=[],currentTag='all',searchQuery='',userPlan='free',editingId=null;
+  let currentUser=null,allLinks=[],currentTag='all',searchQuery='',userPlan='free',editingId=null,vaultKey=null;
   const loadingScreen=document.getElementById('loadingScreen');
   const userEmailEl=document.getElementById('userEmail');
   const planBadge=document.getElementById('planBadge');
@@ -233,31 +234,79 @@
     });
   }
   async function fetchPlan(){const{data}=await _supabase.from('subscriptions').select('plan').eq('user_id',currentUser.id).maybeSingle();userPlan=data?.plan||'free';}
+  async function getOrCreateVaultKey(){
+    const{data,error}=await _supabase.from('vault_settings').select('*').eq('user_id',currentUser.id).maybeSingle();
+    if(error)throw error;
+    if(!data){
+      const passphrase=window.prompt('ATOMOWY SCHRON\\n\\nUstaw osobne hasło sejfu. Minimum 12 znaków.\\n\\nHasło nie jest przechowywane na serwerze. Jeśli je utracisz, zaszyfrowanych danych nie da się odzyskać.');
+      if(passphrase===null)throw new Error('Sejf nie został odblokowany.');
+      const salt=randomBase64(16);
+      const key=await deriveVaultKey(passphrase,salt,VAULT_KDF_ITERATIONS);
+      const{error:insertError}=await _supabase.from('vault_settings').insert([{user_id:currentUser.id,salt,kdf_iterations:VAULT_KDF_ITERATIONS,crypto_version:VAULT_CRYPTO_VERSION}]);
+      if(insertError)throw insertError;
+      return key;
+    }
+    const passphrase=window.prompt('🔐 Odblokuj atomowy schron\\n\\nPodaj hasło sejfu.');
+    if(passphrase===null)throw new Error('Sejf nie został odblokowany.');
+    return deriveVaultKey(passphrase,data.salt,data.kdf_iterations);
+  }
+
+  async function migratePlaintextRows(rows){
+    const legacy=rows.filter(row=>!row.encrypted_data&&row.url&&row.title);
+    for(const row of legacy){
+      const encrypted=await encryptVaultItem(vaultKey,{url:validateVaultUrl(row.url),title:row.title,note:row.note||null,tag:row.tag||'inne'},currentUser.id,row.id);
+      const{error}=await _supabase.from('links').update({
+        encrypted_data:encrypted.encrypted_data,encryption_iv:encrypted.encryption_iv,encryption_version:encrypted.encryption_version,
+        url:null,title:null,note:null,tag:null
+      }).eq('id',row.id).eq('user_id',currentUser.id);
+      if(error)throw error;
+    }
+  }
+
   async function fetchLinks(){
     if(!currentUser)return;
-    const{data,error}=await _supabase.from('links').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
-    if(error){console.error(error);return;}
-    allLinks=data||[];renderLinks();updateLimitBar();
+    const{data,error}=await _supabase.from('links').select('id,user_id,url,title,note,tag,created_at,encrypted_data,encryption_iv,encryption_version').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+    if(error)throw error;
+    await migratePlaintextRows(data||[]);
+    const{data:rows,error:reloadError}=await _supabase.from('links').select('id,user_id,created_at,encrypted_data,encryption_iv,encryption_version').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+    if(reloadError)throw reloadError;
+    const decrypted=[];
+    for(const row of rows||[]){
+      if(!row.encrypted_data)throw new Error('Znaleziono rekord bez szyfrowania. Dane nie zostały wyświetlone.');
+      const plain=await decryptVaultItem(vaultKey,row,currentUser.id);
+      decrypted.push({id:row.id,user_id:row.user_id,created_at:row.created_at,url:validateVaultUrl(plain.url),title:String(plain.title||''),note:plain.note||null,tag:plain.tag||'inne'});
+    }
+    allLinks=decrypted;renderLinks();updateLimitBar();
   }
   async function saveLink(){
-    const url=inputUrl.value.trim(),title=inputTitle.value.trim(),note=inputNote.value.trim(),tag=inputTag.value;
-    if(!url||!title){showToast('URL i Tytuł są wymagane');return;}
-    btnSave.disabled=true;btnSave.textContent='Zapisuję...';
-    if(editingId){
-      const{data,error}=await _supabase.from('links').update({url,title,note:note||null,tag}).eq('id',editingId).eq('user_id',currentUser.id).select();
-      btnSave.disabled=false;btnSave.textContent='Zapisz zmiany';
-      if(error){showToast('Błąd: '+error.message);return;}
-      if(data&&data.length){const idx=allLinks.findIndex(l=>l.id===editingId);if(idx>-1)allLinks[idx]=data[0];}
-      showToast('✅ Link zaktualizowany');
-    } else {
-      if(userPlan==='free'&&allLinks.length>=FREE_LIMIT){upgradeOverlay.classList.add('open');btnSave.disabled=false;btnSave.textContent='Zapisz link';return;}
-      const{data,error}=await _supabase.from('links').insert([{user_id:currentUser.id,url,title,note:note||null,tag,created_at:new Date().toISOString()}]).select();
-      btnSave.disabled=false;btnSave.textContent='Zapisz link';
-      if(error){showToast('Błąd: '+error.message);return;}
-      if(data&&data.length)allLinks.unshift(data[0]);
-      showToast('✅ Link zapisany');
-    }
-    renderLinks();updateLimitBar();closeModal();
+    const rawUrl=inputUrl.value.trim(),title=inputTitle.value.trim(),note=inputNote.value.trim(),tag=inputTag.value;
+    if(!rawUrl||!title){showToast('URL i Tytuł są wymagane');return;}
+    let url;
+    try{url=validateVaultUrl(rawUrl);}catch(e){showToast(e.message);return;}
+    btnSave.disabled=true;btnSave.textContent='Szyfruję...';
+    try{
+      if(editingId){
+        const encrypted=await encryptVaultItem(vaultKey,{url,title,note:note||null,tag},currentUser.id,editingId);
+        const{error}=await _supabase.from('links').update({
+          encrypted_data:encrypted.encrypted_data,encryption_iv:encrypted.encryption_iv,encryption_version:encrypted.encryption_version,
+          url:null,title:null,note:null,tag:null
+        }).eq('id',editingId).eq('user_id',currentUser.id);
+        if(error)throw error;
+        const idx=allLinks.findIndex(l=>l.id===editingId);
+        if(idx>-1)allLinks[idx]={...allLinks[idx],url,title,note:note||null,tag};
+        showToast('✅ Link zaszyfrowany i zaktualizowany');
+      }else{
+        if(userPlan==='free'&&allLinks.length>=FREE_LIMIT){upgradeOverlay.classList.add('open');return;}
+        const id=crypto.randomUUID();
+        const encrypted=await encryptVaultItem(vaultKey,{url,title,note:note||null,tag},currentUser.id,id);
+        const{error}=await _supabase.from('links').insert([{id,user_id:currentUser.id,encrypted_data:encrypted.encrypted_data,encryption_iv:encrypted.encryption_iv,encryption_version:encrypted.encryption_version,created_at:new Date().toISOString()}]);
+        if(error)throw error;
+        allLinks.unshift({id,user_id:currentUser.id,created_at:new Date().toISOString(),url,title,note:note||null,tag});
+        showToast('✅ Link zaszyfrowany i zapisany');
+      }
+      renderLinks();updateLimitBar();closeModal();
+    }catch(error){console.error(error);showToast('Błąd sejfu: '+(error.message||'nie udało się zapisać'));}
+    finally{btnSave.disabled=false;btnSave.textContent=editingId?'Zapisz zmiany':'Zapisz link';}
   }
   async function deleteLink(id){
     if(!confirm('Usunąć?'))return;
@@ -282,7 +331,9 @@
     if(!session){window.location.href='/login.html';return;}
     currentUser=session.user;
     userEmailEl.textContent=currentUser.email||'';
-    await fetchPlan();await fetchLinks();
+    await fetchPlan();
+    vaultKey=await getOrCreateVaultKey();
+    await fetchLinks();
     loadingScreen.style.display='none';
     _supabase.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')window.location.href='/login.html';});
   }
