@@ -224,16 +224,12 @@
     btnPro.textContent = 'Przekierowuję...';
 
     try {
-      const priceId = isYearly ? PRICE_YEARLY : PRICE_MONTHLY;
+      const plan = isYearly ? 'yearly' : 'monthly';
 
+      // The server verifies the signed-in user and chooses the Stripe Price ID.
+      // Never trust userId, email, priceId, or redirect URLs supplied by the browser.
       const { data, error } = await _supabase.functions.invoke('create-checkout', {
-        body: {
-          priceId: priceId,
-          userId: currentUser.id,
-          email: currentUser.email,
-          successUrl: window.location.origin + '/app.html?upgraded=true',
-          cancelUrl: window.location.origin + '/pricing.html'
-        }
+        body: { plan }
       });
 
       if (error) throw error;
