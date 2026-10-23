@@ -4,7 +4,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
 const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
-const appBaseUrl = Deno.env.get("APP_BASE_URL");
 const allowedOrigins = (Deno.env.get("APP_ALLOWED_ORIGINS") ?? "")
   .split(",")
   .map((value) => value.trim())
@@ -47,7 +46,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405, permittedOrigin);
   if (!permittedOrigin) return json({ error: "Origin not allowed" }, 403);
 
-  if (!stripe || !supabaseUrl || !supabaseAnonKey || !appBaseUrl) {
+  if (!stripe || !supabaseUrl || !supabaseAnonKey) {
     return json({ error: "Checkout is not configured" }, 503, permittedOrigin);
   }
 
@@ -73,7 +72,8 @@ Deno.serve(async (req) => {
       : Deno.env.get("STRIPE_PRICE_MONTHLY");
     if (!priceId) return json({ error: "Selected plan is not configured" }, 503, permittedOrigin);
 
-    const baseUrl = new URL(appBaseUrl);
+    // Redirects are derived only from an exact origin in APP_ALLOWED_ORIGINS.
+    const baseUrl = new URL(permittedOrigin);
     if (baseUrl.protocol !== "https:" && baseUrl.hostname !== "localhost") {
       return json({ error: "Invalid application URL configuration" }, 503, permittedOrigin);
     }
