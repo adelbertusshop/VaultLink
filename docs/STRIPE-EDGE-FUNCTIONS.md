@@ -9,8 +9,7 @@ Configure values in the VaultLink Supabase project's Edge Function secrets (neve
 - `STRIPE_SECRET_KEY`: Stripe secret key for the intended test/live mode.
 - `STRIPE_PRICE_MONTHLY`: Stripe Price ID for the monthly plan.
 - `STRIPE_PRICE_YEARLY`: Stripe Price ID for the yearly plan.
-- `APP_BASE_URL`: canonical app origin for this deployment.
-- `APP_ALLOWED_ORIGINS`: comma-separated exact browser origins allowed to call checkout; include the matching Vercel preview origin only when testing.
+- `APP_ALLOWED_ORIGINS`: comma-separated exact browser origins allowed to call checkout; checkout redirects are derived from the matching allowlisted origin, so no user-supplied redirect URL is trusted.
 - `STRIPE_WEBHOOK_SECRET`: signing secret for the Stripe endpoint pointing to `stripe-webhook`.
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY`: required by `create-checkout`.
 - `SUPABASE_SERVICE_ROLE_KEY`: required only by `stripe-webhook`; server-side secret, never expose to browser code.
