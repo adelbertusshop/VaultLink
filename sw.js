@@ -1,31 +1,43 @@
-const CACHE = 'vaultlink-v2';
-const ASSETS = [
-  'index.html',
-  'login.html',
-  'app.html',
-  'pricing.html',
-  'manifest.json',
-  'logo.png'
+const CACHE = 'vaultlink-static-v3';
+const STATIC_ASSETS = [
+  '/manifest.json',
+  '/logo.png'
 ];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
+function isSameOriginStatic(request) {
+  const url = new URL(request.url);
+  return url.origin === self.location.origin &&
+    request.method === 'GET' &&
+    (url.pathname === '/manifest.json' || url.pathname === '/logo.png');
+}
+
+self.addEventListener('install', event => {
+  event.waitUntil(
     caches.open(CACHE)
-      .then(c => c.addAll(ASSETS))
+      .then(cache => cache.addAll(STATIC_ASSETS))
       .then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys
+          .filter(key => key !== CACHE)
+          .map(key => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+self.addEventListener('fetch', event => {
+  const { request } = event;
+
+  // Never cache navigation, authentication, API, Supabase, or non-GET traffic.
+  if (!isSameOriginStatic(request)) return;
+
+  event.respondWith(
+    caches.match(request).then(cached => cached || fetch(request))
   );
 });

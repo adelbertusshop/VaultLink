@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>VaultLink — Crypto self-test</title>
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:760px;margin:40px auto;padding:0 16px}
+    li{margin:8px 0}.ok{color:green}.fail{color:#b00020}code{word-break:break-all}
+  </style>
+</head>
+<body>
+  <h1>VaultLink crypto self-test</h1>
+  <p>Test używa wyłącznie danych testowych. Nie zapisuje nic do Supabase.</p>
+  <ul id="results"></ul>
+  <script src="../crypto.js"></script>
+  <script>
+    (async () => {
+      const out = document.getElementById('results');
+      const results = [];
+      const check = (name, condition) => {
+        if (!condition) throw new Error(name);
+        results.push({name, ok:true});
+      };
+      const mustReject = async (name, fn) => {
+        try { await fn(); throw new Error('operacja nie odrzuciła zmienionych danych'); }
+        catch (error) {
+          if (error && error.message === 'operacja nie odrzuciła zmienionych danych') throw error;
+          results.push({name, ok:true});
+        }
+      };
+
+      try {
+        const passphrase = 'vaultlink-test-passphrase-2026';
+        const wrongPassphrase = 'vaultlink-wrong-passphrase-2026';
+        const salt = randomBase64(16);
+        const userId = '00000000-0000-4000-8000-000000000001';
+        const recordId = '00000000-0000-4000-8000-000000000002';
+        const item = {url:'https://example.com/', title:'Test', note:'vault test', tag:'dev'};
+
+        const key = await deriveVaultKey(passphrase, salt);
+        check('PBKDF2 key is non-extractable', key.extractable === false);
+        check('PBKDF2 key uses AES-GCM', key.algorithm.name === 'AES-GCM');
+        check('PBKDF2 key is 256-bit', key.algorithm.length === 256);
+
+        const encrypted = await encryptVaultItem(key, item, userId, recordId);
+        const iv = base64ToBytes(encrypted.encryption_iv);
+        check('AES-GCM IV is 96-bit', iv.byteLength === 12);
+        check('ciphertext exists', typeof encrypted.encrypted_data === 'string' && encrypted.encrypted_data.length > 0);
+        check('crypto version is 1', encrypted.encryption_version === 1);
+
+        const row = {id:recordId, ...encrypted};
+        const decrypted = await decryptVaultItem(key, row, userId);
+        check('round-trip decrypt matches plaintext', JSON.stringify(decrypted) === JSON.stringify(item));
+
+        const wrongKey = await deriveVaultKey(wrongPassphrase, salt);
+        await mustReject('wrong key is rejected', () => decryptVaultItem(wrongKey, row, userId));
+
+        const tamperedCipher = {...row};
+        const bytes = base64ToBytes(tamperedCipher.encrypted_data);
+        bytes[0] ^= 1;
+        tamperedCipher.encrypted_data = bytesToBase64(bytes);
+        await mustReject('tampered ciphertext is rejected', () => decryptVaultItem(key, tamperedCipher, userId));
+
+        const tamperedIv = {...row};
+        const ivBytes = base64ToBytes(tamperedIv.encryption_iv);
+        ivBytes[0] ^= 1;
+        tamperedIv.encryption_iv = bytesToBase64(ivBytes);
+        await mustReject('tampered IV is rejected', () => decryptVaultItem(key, tamperedIv, userId));
+
+        await mustReject('changed user AAD is rejected', () => decryptVaultItem(key, row, '00000000-0000-4000-8000-000000000099'));
+
+        const changedRecord = {...row, id:'00000000-0000-4000-8000-000000000099'};
+        await mustReject('changed record AAD is rejected', () => decryptVaultItem(key, changedRecord, userId));
+
+        const changedVersion = {...row, encryption_version:2};
+        await mustReject('unsupported crypto version is rejected', () => decryptVaultItem(key, changedVersion, userId));
+
+        results.forEach(r => {
+          const li = document.createElement('li');
+          li.className = r.ok ? 'ok' : 'fail';
+          li.textContent = (r.ok ? 'PASS — ' : 'FAIL — ') + r.name;
+          out.appendChild(li);
+        });
+      } catch (error) {
+        const li = document.createElement('li');
+        li.className = 'fail';
+        li.textContent = 'FAIL — ' + (error && error.message ? error.message : String(error));
+        out.appendChild(li);
+      }
+    })();
+  </script>
+</body>
+</html>
