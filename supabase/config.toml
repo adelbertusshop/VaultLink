@@ -1,0 +1,9 @@
+# Function settings for VaultLink. These settings apply when functions are deployed
+# through the Supabase CLI using this repository.
+[functions.create-checkout]
+verify_jwt = true
+
+# Stripe authenticates webhook requests with the Stripe-Signature header,
+# not a Supabase JWT. The handler MUST verify that signature itself.
+[functions.stripe-webhook]
+verify_jwt = false
